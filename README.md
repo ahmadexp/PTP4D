@@ -52,6 +52,10 @@ Tested configuration:
 
 A readable microSD card must be installed in PicoPCMCIA for the tested firmware to finish starting. The initial powered-hub arrangement did not enumerate; direct USB is the verified arrangement. Generic ASIX Ethernet-only firmware is not supported by this utility. Firmware, DOS, and the compiler are obtained separately.
 
+![TimeStick v3 connected directly to the PicoPCMCIA USB-C breakout](docs/photos/timestick-picopcmcia.png)
+
+*TimeStick v3 on the left, plugged directly into the PicoPCMCIA USB-C breakout on the right. The Ethernet cable connects the TimeStick to its PTP peer.*
+
 ## Run on DOS
 
 Download [`PTP4D.EXE` from the latest release](https://github.com/ahmadexp/PTP4D/releases/latest/download/PTP4D.EXE) and copy it to `C:\`. Verify it against the release's [`SHA256SUMS`](https://github.com/ahmadexp/PTP4D/releases/latest/download/SHA256SUMS). The same tested executable is also kept in [`bin/`](bin/).
