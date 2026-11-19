@@ -1,6 +1,10 @@
+<img src="docs/branding/ptp4d-icon.png" alt="PTP4D: a retro DOS computer with a clock and synchronized pulses" width="144" height="144" align="right">
+
 # PTP4D: PTP for DOS
 
 **PTP4D stands for PTP for DOS.** It brings hardware-clock PTP control to real-mode DOS through PicoPCMCIA and a TimeStick v3.
+
+**[Download PTP4D.EXE](https://github.com/ahmadexp/PTP4D/releases/latest/download/PTP4D.EXE)** | [Release notes](https://github.com/ahmadexp/PTP4D/releases/latest) | [SHA-256 checksum](https://github.com/ahmadexp/PTP4D/releases/latest/download/SHA256SUMS)
 
 The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. The DOS system clock is unchanged.
 
@@ -46,7 +50,7 @@ A readable microSD card must be installed in PicoPCMCIA for the tested firmware 
 
 ## Run on DOS
 
-Copy [`bin/PTP4D.EXE`](bin/PTP4D.EXE) to `C:\`. Its SHA-256 is in [`bin/SHA256SUMS`](bin/SHA256SUMS).
+Download [`PTP4D.EXE` from the latest release](https://github.com/ahmadexp/PTP4D/releases/latest/download/PTP4D.EXE) and copy it to `C:\`. Verify it against the release's [`SHA256SUMS`](https://github.com/ahmadexp/PTP4D/releases/latest/download/SHA256SUMS). The same tested executable is also kept in [`bin/`](bin/).
 
 Start the grandmaster first, then run the follower promptly so both Ethernet PHYs are active within the firmware's link-start deadline:
 
