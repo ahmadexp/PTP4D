@@ -1,0 +1,22 @@
+{
+  "records": 128,
+  "last_window_records": 40,
+  "last_window_mean_offset_ns": 2.175,
+  "last_window_max_abs_offset_ns": 20.5,
+  "last_window_stddev_offset_ns": 7.543664560410941,
+  "last_path_delay_ns": 2766.0,
+  "grandmaster_timestamp_errors": 0,
+  "t1_matches": 128,
+  "t4_matches": 128,
+  "arithmetic_matches": 128,
+  "dos_stop_verified": true,
+  "console_overflow": false,
+  "dos_prompt_returned": true,
+  "test_platform": "IBM PC110, MS-DOS 6.22, PicoPCMCIA v4.4 with stock v0.22 firmware, two TimeStick v3 devices",
+  "exchange_rate_hz": 4,
+  "ptp_domain": 42,
+  "total_exchanges": 237,
+  "dos_lease_renewals": 14,
+  "scope": "Reported hardware-clock PTP offset with symmetric-path assumption; no external PPS or UTC calibration",
+  "measurement_program": "TSREAD 0.4, subsequently renamed PTP4D without servo or transport changes"
+}

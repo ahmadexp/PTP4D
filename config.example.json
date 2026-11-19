@@ -1,0 +1,14 @@
+{
+  "serial_host": "retro@dos-bridge.example.net",
+  "peer_host": "retro@ptp-peer.example.net",
+  "comrade_dir": "/home/retro/COMrade",
+  "serial_device": "/dev/serial/by-id/REPLACE_WITH_YOUR_SERIAL_ADAPTER",
+  "serial_lock": "/home/retro/.cache/comrade/serial.lock",
+  "dos_log_dir": "/home/retro/ptp4d-dos",
+  "peer_dir": "/home/retro/ptp4d",
+  "peer_serial": "REPLACE_WITH_TIMESTICK_SERIAL",
+  "peer_mac": "02:00:00:00:00:02",
+  "dos_executable": "C:\\PTP4D.EXE",
+  "dos_prompt": "C:\\>",
+  "baud": 115200
+}

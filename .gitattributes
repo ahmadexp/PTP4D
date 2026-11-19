@@ -1,0 +1,6 @@
+* text=auto
+src/*.C text eol=crlf
+src/*.H text eol=crlf
+src/*.BAT text eol=crlf
+*.png binary
+*.EXE binary

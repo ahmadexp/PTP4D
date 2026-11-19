@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+build/
+config.local.json
+*.local.json
+*.log
+.venv/

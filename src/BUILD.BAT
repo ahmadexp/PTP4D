@@ -1,0 +1,2 @@
+@echo off
+BCC -mh -O -w -ePTP4D.EXE PTP4D.C TSWIRE.C TSMIDI.C > BUILD.LOG
