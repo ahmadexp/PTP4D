@@ -1,4 +1,4 @@
-<img src="docs/branding/ptp4d-icon.png" alt="PTP4D: a retro DOS computer with a clock and synchronized pulses" width="144" height="144" align="right">
+<img src="docs/branding/ptp4d-icon.png" alt="PTP4D: an IBM PC110 with a clock and synchronized pulses" width="144" height="144" align="right">
 
 # PTP4D: PTP for DOS
 
@@ -8,9 +8,9 @@
 
 The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. The DOS system clock is unchanged.
 
-![PTP4D running on a real IBM PC110, captured through a Lantronix KVM](docs/screenshots/ptp4d-live.png)
+![PTP4D running on the IBM PC110's built-in display](docs/photos/pc110-running-ptp4d.png)
 
-*Actual PC110 display during continuous synchronization. The screenshot is an unedited capture of the Lantronix console, not an emulated or reconstructed terminal.*
+*PTP4D on the PC110's own display during convergence, showing the measured offset, path delay, and frequency correction.*
 
 ## What works
 
@@ -23,6 +23,10 @@ The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures an
 - A Linux TimeStick grandmaster controller and an optional SSH/COMrade pair controller.
 
 The DOS program configures a **PI (proportional-integral) servo inside the TimeStick firmware**. It does not implement a separate DOS-side servo or timestamp packets using the PC110 CPU.
+
+![PTP4D running on a real IBM PC110, captured through a Lantronix KVM](docs/screenshots/ptp4d-live.png)
+
+*Actual PC110 display during continuous synchronization. The screenshot is an unedited capture of the Lantronix console, not an emulated or reconstructed terminal.*
 
 ## Hardware path
 
