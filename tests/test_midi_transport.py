@@ -205,7 +205,8 @@ class NativeLoopbackTests(unittest.TestCase):
             fn = getattr(native.midi, name); fn.restype = C.c_int32; fn.argtypes = args
         received = queue.Queue()
         callback = native.read_type(lambda p, *_: received.put(midi.packet_bytes(p)))
-        notify = native.notify_type(lambda *_: None)
+        fixture_notifications = queue.Queue()
+        notify = native.notify_type(lambda *_: fixture_notifications.put(time.monotonic()))
         client = native.make_client(notify)
         source, destination = ref(), ref()
         transport = None
@@ -215,6 +216,20 @@ class NativeLoopbackTests(unittest.TestCase):
                 native.midi.MIDISourceCreate(client, label, C.byref(source))))
             native.check(native.named('PTP4D virtual test destination', lambda label:
                 native.midi.MIDIDestinationCreate(client, label, callback, None, C.byref(destination))))
+            # Fixture endpoint creation delivers asynchronous setup notifications.
+            # Observe a quiet interval before binding the transport, whose strict
+            # setup-change rejection remains enabled throughout the I/O test.
+            started = quiet_since = time.monotonic()
+            while time.monotonic() - started < 5:
+                native.poll()
+                while not fixture_notifications.empty():
+                    quiet_since = fixture_notifications.get_nowait()
+                now = time.monotonic()
+                if now - started >= 1 and now - quiet_since >= .25:
+                    break
+                time.sleep(.01)
+            else:
+                self.fail('Virtual MIDI fixture did not settle before the I/O test')
             record = dict(serial='virtual-test', device=1, device_uid=1, entity=1,
                           source=source.value, destination=destination.value,
                           source_uid=native.properties(source.value)['uniqueID'],
