@@ -109,10 +109,10 @@ The verified arrangement connects TimeStick directly to PicoPCMCIA's USB-C break
 
 A readable microSD is required for the tested card firmware's startup. Firmware v0.22 and the matching PICOCARD driver must already be installed. PTP4D does not flash either device. Pico's RP2350 can be programmed with the official Raspberry Pi `picotool`; entering BOOTSEL and safely stopping the resident driver are separate setup steps.
 
-## Development modes and shared hardware
+## Clock modes and shared hardware
 
 The commands above describe the existing hardware-only follower pair. The
-new source offers [runtime servos and clock direction](clock-modes.md). The
+0.5 release offers [runtime servos and clock direction](clock-modes.md). The
 host helpers continue to launch the compatible PI/default direction; advanced
 switches are entered directly on DOS. The free-running peer supplied here has
 no independently verified UTC epoch and is not automatically eligible for
@@ -125,8 +125,8 @@ storage-transfer work, including saved SWD state.
 Keep one TimeStick connected directly to PicoPCMCIA and the other to the laptop,
 with Ethernet between them. Wait for all SD transfers and storage ownership to
 be released before launching the DOS utility or changing Pico ownership. The
-published `bin/PTP4D.EXE` is version 0.4; the additional servos require the
-development executable produced in `build/`.
+published `bin/PTP4D.EXE` and the latest release download are version 0.5 and
+include all six servo selections.
 
 For each trial, start the standalone laptop grandmaster above and promptly start
 a 60-second follower run on DOS. Begin with the firmware PI baseline:

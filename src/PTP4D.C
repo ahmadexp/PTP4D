@@ -606,7 +606,7 @@ int main(int argc, char **argv) {
     unsigned i;
     int mode = -1, list = 0, diag = 0, enable = 0, wanted = -1, r = 0;
     const char *option_error;
-    puts("PTP4D 0.5-dev - PTP for DOS");
+    puts("PTP4D 0.5 - PTP for DOS");
     r=pt_options_parse(argc,argv,&options,&option_error);
     if(r==2){pt_help();return 0;}
     if(!r){puts(option_error);return 1;}

@@ -6,9 +6,9 @@
 
 **[Download PTP4D.EXE](https://github.com/ahmadexp/PTP4D/releases/latest/download/PTP4D.EXE)** | [Release notes](https://github.com/ahmadexp/PTP4D/releases/latest) | [SHA-256 checksum](https://github.com/ahmadexp/PTP4D/releases/latest/download/SHA256SUMS)
 
-**Development source: 0.5-dev.** Runtime servo selection, explicit follower/GM roles, and guarded PHC-to-DOS time copying are implemented and locally tested. The download and `bin/PTP4D.EXE` are still the hardware-tested 0.4 release. [New switches and clock behavior](docs/clock-modes.md) | [Servo inventory and protocol limits](docs/servo-inventory.md). DOS-derived grandmaster time is unavailable with the inspected firmware and is rejected before hardware access.
+**Version 0.5 is released.** The download and `bin/PTP4D.EXE` include five DOS-side servos alongside the default firmware PI, explicit follower/GM roles, and guarded PHC-to-DOS time copying. All six follower selections have completed PC110 hardware trials. [Release notes](docs/releases/v0.5.md) | [Switches and clock behavior](docs/clock-modes.md) | [Servo inventory and protocol limits](docs/servo-inventory.md). PHC-to-DOS writes and DOS-controlled GM operation have local tests but remain unverified on hardware. DOS-derived grandmaster time is unavailable with the inspected firmware and is rejected before hardware access.
 
-The development host controller also supports **macOS CoreMIDI** alongside Linux
+The host controller also supports **macOS CoreMIDI** alongside Linux
 ALSA, including device listing and a receive-only check. Mac enumeration, passive
 TimeStick telemetry, and virtual MIDI input/output have been tested. All six
 follower servo selections completed one-minute PC110 hardware trials against
@@ -21,9 +21,9 @@ The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures an
 
 ![PTP4D AUTO_PI results on the IBM PC110's built-in display](docs/photos/pc110-auto-pi-servo.jpg)
 
-*A one-minute AUTO_PI trial from the development build, photographed on the physical PC110. The display shows reported offset, path delay, and frequency correction. [Full-size photo](docs/photos/pc110-auto-pi-servo.jpg).*
+*A one-minute AUTO_PI trial from the 0.5 development build, photographed on the physical PC110. The release uses the same timing code with an updated version banner. The display shows reported offset, path delay, and frequency correction. [Full-size photo](docs/photos/pc110-auto-pi-servo.jpg).*
 
-## Hardware-verified 0.4 behavior
+## Hardware-verified behavior
 
 - TimeStick identification and hardware-clock reads over USB MIDI.
 - PTP follower operation in domain **42**, at **4 exchanges per second**.
@@ -31,9 +31,10 @@ The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures an
 - Timed runs or continuous operation until **Esc**.
 - Renewable 15-second device leases and verified STOP acknowledgements.
 - CSV output containing the last 128 complete hardware timestamp exchanges.
-- A Linux TimeStick grandmaster controller and an optional SSH/COMrade pair controller.
+- Runtime selection of firmware `PI` or DOS-side `HOST_PI`, `AUTO_PI`, `LINREG`, `KALMAN`, and `PLLFLL`.
+- A Linux/macOS TimeStick grandmaster controller and an optional Linux SSH/COMrade pair controller.
 
-The default configures a **PI (proportional-integral) servo inside the TimeStick firmware**. Development builds additionally offer DOS-side `HOST_PI`, `AUTO_PI`, `LINREG`, `KALMAN`, and `PLLFLL` controllers through the firmware's host-control profile. Ethernet timestamps always come from the TimeStick hardware. See [controller placement and licensing](docs/servo-inventory.md).
+The default configures a **PI (proportional-integral) servo inside the TimeStick firmware**. Version 0.5 additionally offers the five DOS-side controllers through the firmware's host-control profile. Ethernet timestamps always come from the TimeStick hardware. See [controller placement and licensing](docs/servo-inventory.md).
 
 ![PTP4D running on a real IBM PC110, captured through a Lantronix KVM](docs/screenshots/ptp4d-live.png)
 
@@ -44,9 +45,9 @@ The default configures a **PI (proportional-integral) servo inside the TimeStick
 ```mermaid
 flowchart LR
     DOS[IBM PC110 / DOS / PTP4D] -->|PCMCIA mailbox| Pico[PicoPCMCIA / RP2350]
-    Pico -->|USB MIDI| Follower[TimeStick v3 / AX88279A / PI follower]
+    Pico -->|USB MIDI| Follower[TimeStick v3 / AX88279A / hardware clock]
     Follower <-->|Ethernet PTP, domain 42| GM[TimeStick v3 / hardware grandmaster]
-    Linux[Linux / peer.py] -->|USB MIDI commands and telemetry| GM
+    Host[Linux ALSA or macOS CoreMIDI / peer.py] -->|USB MIDI commands and telemetry| GM
 ```
 
 Tested configuration:
@@ -59,7 +60,7 @@ Tested configuration:
 | Timing devices | Two TimeStick v3 devices with USB MIDI timing firmware |
 | USB connection | TimeStick connected directly to the PicoPCMCIA USB-C breakout |
 | Ethernet | Direct cable between the two TimeSticks |
-| Grandmaster host | Linux with an accessible ALSA raw MIDI device |
+| Grandmaster host | Linux ALSA or macOS CoreMIDI |
 
 A readable microSD card must be installed in PicoPCMCIA for the tested firmware to finish starting. The initial powered-hub arrangement did not enumerate; direct USB is the verified arrangement. Generic ASIX Ethernet-only firmware is not supported by this utility. Firmware, DOS, and the compiler are obtained separately.
 
@@ -84,6 +85,7 @@ C:\PTP4D /PTP 0
 | --- | --- |
 | `PTP4D /PTP 0` | Continuous PTP follower; Esc stops it |
 | `PTP4D /PTP 60` | PTP follower for approximately 60 seconds |
+| `PTP4D /PTP 60 /SERVO KALMAN` | One-minute follower using the DOS Kalman servo |
 | `PTP4D /CLOCK` | Brief clock-only session and hardware snapshots |
 | `PTP4D` | Passive MIDI clock read; reports an inactive clock when appropriate |
 | `PTP4D /LIST` | Enumerate USB devices |
@@ -95,9 +97,9 @@ PTP durations are `0` or `10..3600` seconds. PTP4D runs in the foreground. Stop 
 
 ![PTP4D command help on the physical PC110](docs/screenshots/ptp4d-help.png)
 
-## Development clock modes
+## Servo selection and clock modes
 
-Build the development source to use these commands:
+Version 0.5 includes these commands:
 
 ```dos
 PTP4D /PTP 60 /SERVO KALMAN
@@ -134,7 +136,26 @@ python3 tools/control.py stop --config config.local.json
 
 The pair controller starts a transient `ptp4d-gm` user service, launches PTP4D through COMrade, and stops both ends. It does not install a boot-time service. The configuration file is ignored by Git.
 
-## Measured result
+## Servo comparison
+
+All six selections completed separate one-minute hardware trials with the
+Mac-controlled TimeStick. All **768 retained exchanges** matched the grandmaster
+timestamps and independent arithmetic, with zero grandmaster timestamp errors
+and verified STOP/restoration at both ends.
+
+![Six servo offset traces and final-window detail](docs/validation/servo-20261120/servo-offsets.png)
+
+The graphs show the final 128 exchanges, about 32 seconds, from each run.
+The shaded portion is the final 40 exchanges, enlarged on the right. Startup
+is outside the retained window. HOST_PI still had a positive residual in this
+trial; the other final-window means were within 5 ns of zero. These separate
+runs have different initial conditions and do not establish a controller ranking
+or independent PPS/UTC accuracy.
+
+[Frequency-correction graphs, offset distributions, and results](docs/validation/servo-20261120/#graphs)
+include PNG and SVG figures, all 768 samples in CSV, and reproducible plotting code.
+
+## Original 0.4 measurement
 
 A one-minute hardware run completed **237 exchanges** with **14 successful DOS lease renewals** and **zero grandmaster timestamp errors**.
 
@@ -157,7 +178,10 @@ These are PTP-reported offsets under the symmetric-path assumption. They are not
 python3 tools/analyze.py docs/validation/dos.json docs/validation/grandmaster.jsonl
 ```
 
-To regenerate the figure, install `matplotlib` in a Python environment and run `python3 tools/plot.py`.
+To regenerate the original figure, install `matplotlib` in a Python environment
+and run `python3 tools/plot.py`. The six-servo figures use
+`python3 tools/plot_servos.py` with Matplotlib 3.11.2; see the
+[plotting instructions](docs/validation/servo-20261120/#reproduce-the-graphs).
 
 ## Build and test
 

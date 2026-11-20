@@ -5,6 +5,56 @@ TimeStick grandmaster controlled by macOS CoreMIDI. Each run used domain 42,
 4 Hz, and `/SYNC NONE`. Both endpoints acknowledged STOP and restoration, and
 the PC110 returned to its DOS prompt after every accepted run.
 
+## Graphs
+
+![Reported offset across the six servo trials](servo-offsets.png)
+
+The final 128 exchanges span 31.77 to 31.78 seconds in each run. Zero on the
+horizontal axis is that run's last retained exchange, not a shared wall-clock
+instant. The startup portion of each 60-second run was not retained. No startup
+acquisition time or full-run settling time can be inferred from these plots.
+The shaded region and right-hand detail show the final 40 samples, about 10 seconds.
+
+PI, HOST_PI, and AUTO_PI approach zero from a positive offset in this window;
+LINREG, KALMAN, and PLLFLL approach it from a negative offset. HOST_PI retains
+more positive residual at the end. Initial conditions differ, so the shapes
+are observations from these runs rather than a controlled performance ranking.
+
+![Reported frequency correction for each servo](servo-corrections.png)
+
+Every correction panel uses the same scales. KALMAN's reported corrections
+vary less visibly than LINREG's in this capture; this alone does not establish
+lower physical noise or better accuracy. The steps connect reported values;
+exact USB actuation times are not plotted.
+
+![Distribution of the final 40 offsets for each servo](servo-final-offsets.png)
+
+Dots show all final-window samples. Boxes span the interquartile range, whiskers
+span the full observed range, diamonds mark means, and bars mark medians.
+The spread includes residual settling as well as sample variation. The samples
+are sequential, not independent repetitions, and the boxes are not confidence
+intervals. Summary statistics are listed below.
+
+Vector figures: [offsets](servo-offsets.svg), [corrections](servo-corrections.svg),
+[final offsets](servo-final-offsets.svg). [Combined CSV](exchanges.csv) contains
+all 768 plotted samples, signed time relative to the final exchange, the reported
+correction, and all four original hardware timestamps in integer nanoseconds.
+
+### Reproduce the graphs
+
+From the repository root, in a Python environment with Matplotlib 3.11.2:
+
+```sh
+python3 -m pip install matplotlib==3.11.2
+python3 tools/plot_servos.py
+```
+
+The published figures were generated with Matplotlib 3.11.2. The script reads
+the checked-in analyses, validates timestamp arithmetic and summary statistics,
+and writes the PNG/SVG figures and combined CSV. It does not access hardware.
+Full timestamp correlation against each grandmaster log remains available
+through `tools/analyze.py`.
+
 ## Results
 
 Statistics below use the final 40 retained exchanges, approximately 10 seconds.

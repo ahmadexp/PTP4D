@@ -1,5 +1,10 @@
 # CoreMIDI local validation, 2026-11-20
 
+This records the initial transport checks before the live servo trials.
+The subsequent [six-servo hardware results](servo-20261120/) cover live
+Mac-to-DOS PTP and PC110 recovery. The release build is recorded in
+[0.5 release validation](v0.5-release.md).
+
 Host: Apple Silicon (`arm64`), macOS 27.0.1 (26A434), Python 3.14.6.
 The implementation uses Python's standard library and the installed CoreMIDI
 and CoreFoundation frameworks. It does not require a MIDI package or compiler.

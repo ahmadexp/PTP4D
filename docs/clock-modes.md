@@ -1,7 +1,7 @@
-# Runtime servos and clock modes (0.5 development)
+# Runtime servos and clock modes (0.5)
 
-These changes are implemented in the source checkout and local development
-build. The published 0.4 executable and its hardware evidence remain unchanged.
+These features are included in the released 0.5 executable and source checkout.
+The 0.4 release and its historical hardware evidence remain available.
 The new paths have portable simulations, protocol/session fault tests and a
 Borland build. All six follower servos with `/SYNC NONE` also completed
 [one-minute PC110 hardware trials](validation/servo-20261120/) against a
