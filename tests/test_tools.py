@@ -1,8 +1,10 @@
 """Host tools: framing, configuration isolation, and recorded timestamp evidence."""
 import argparse
+import csv
 import hashlib
 import importlib.util
 import json
+import math
 import pathlib
 import shlex
 import subprocess
@@ -108,6 +110,84 @@ class HostTests(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_full_servo_timestamp_evidence_and_metrics(self):
+        from servo_metrics import summarize
+        folder = ROOT / 'docs/validation/servo-long-20261120'
+        summary = json.loads((folder / 'summary.json').read_text())
+        comparison = json.loads((folder / 'comparison.json').read_text())
+        plan = json.loads((folder / 'plan.json').read_text())
+        self.assertEqual({t['servo'] for t in summary['trials']},
+                         {'PI', 'HOST_PI', 'AUTO_PI', 'LINREG', 'KALMAN', 'PLLFLL'})
+        with (folder / 'exchanges.csv').open() as stream:
+            csv_rows = list(csv.DictReader(stream))
+        self.assertEqual(len(csv_rows), sum(t['exchanges'] for t in summary['trials']))
+        for trial in summary['trials']:
+            name = trial['servo']
+            with self.subTest(servo=name):
+                path = folder / name.lower()
+                result = subprocess.run([sys.executable, str(ROOT / 'tools/analyze.py'),
+                                         str(path / 'dos.json'), str(path / 'grandmaster.jsonl')],
+                                        capture_output=True, text=True, check=True)
+                observed = json.loads(result.stdout)
+                analysis = json.loads((path / 'analysis.json').read_text())
+                for key, value in observed.items():
+                    self.assertEqual(value, analysis[key])
+                    self.assertEqual(value, trial[key])
+                count = trial['exchanges']
+                self.assertEqual(trial['requested_seconds'], 600)
+                if trial['completed_planned_duration']:
+                    self.assertGreater(count, 2280)
+                    self.assertGreater(trial['capture_span_seconds'], 595)
+                    self.assertFalse(trial['forced_escape'])
+                    self.assertEqual(trial['gm_exit'], 0)
+                else:
+                    self.assertEqual(name, 'LINREG')
+                    self.assertGreater(count, 1200)
+                    self.assertGreater(trial['capture_span_seconds'], 300)
+                    self.assertTrue(trial['forced_escape'])
+                    self.assertIsNone(trial['gm_exit'])
+                for key in ('records', 't1_matches', 't4_matches', 'arithmetic_matches'):
+                    self.assertEqual(observed[key], count)
+                self.assertTrue(observed['dos_stop_verified'] and observed['dos_prompt_returned'] and trial['gm_stopped'])
+                self.assertFalse(observed['console_overflow'] or observed['grandmaster_timestamp_errors'])
+                rows = analysis['rows']
+                for a, b in zip(rows, rows[1:]):
+                    self.assertEqual((b['sync'] - a['sync']) & 65535, 1)
+                    self.assertEqual((b['delay_sequence'] - a['delay_sequence']) & 65535, 1)
+                    self.assertLessEqual(b['t_ns'][0] - a['t_ns'][0], 375000000)
+                logs = [json.loads(s) for s in (path / 'grandmaster.jsonl').read_text().splitlines()]
+                self.assertEqual(logs[-1]['event'], 'stopped')
+                self.assertTrue(logs[-1]['restoration_verified'])
+                generations = [r['generation'] for r in logs if r['event'] == 'started']
+                self.assertEqual(len(generations), 1)
+                active = [r['grandmaster'] for r in logs if 'grandmaster' in r and r['grandmaster']['generation'] == generations[0]]
+                self.assertTrue(active)
+                self.assertTrue(all(not r['timestamp_errors'] and not r['error'] for r in active))
+                t1 = {(r['sync_sequence'], r['t1'][0] * 10**9 + r['t1'][1]) for r in active if r['flags'] & 4}
+                t4 = {(r['delay_sequence'], r['t4'][0] * 10**9 + r['t4'][1]) for r in active if r['flags'] & 8}
+                self.assertTrue(all((r['sync'], r['t_ns'][0]) in t1 and (r['delay_sequence'], r['t_ns'][3]) in t4 for r in rows))
+                self.assertEqual(trial['active_generation_t1_matches'], count)
+                self.assertEqual(trial['active_generation_t4_matches'], count)
+                derived = summarize(rows, plan['settling_band_ns'], plan['settling_dwell_seconds'], plan['stability_window_seconds'])
+                recorded = next(t for t in comparison['trials'] if t['servo'] == name)
+                for key, value in derived.items():
+                    if isinstance(value, float):
+                        self.assertTrue(math.isclose(value, recorded[key], rel_tol=1e-12, abs_tol=1e-12), key)
+                    else:
+                        self.assertEqual(value, recorded[key], key)
+                exported = [r for r in csv_rows if r['servo'] == name]
+                self.assertEqual(len(exported), count)
+                for index, (record, row) in enumerate(zip(exported, rows), 1):
+                    self.assertEqual(int(record['exchange']), index)
+                    self.assertEqual(int(record['sync']), row['sync'])
+                    self.assertEqual(int(record['delay_sequence']), row['delay_sequence'])
+                    self.assertEqual([int(record[f't{i}_ns']) for i in range(1, 5)], row['t_ns'])
+                    self.assertEqual(float(record['offset_ns']), row['offset_ns'])
+                    self.assertEqual(float(record['path_delay_ns']), row['delay_ns'])
+                    self.assertEqual(int(record['reported_rate_ppb']), row['rate_ppb'])
+                    self.assertAlmostEqual(float(record['elapsed_seconds']),
+                                           (row['t_ns'][0] - rows[0]['t_ns'][0]) / 1e9, places=9)
+
     def test_hardware_timestamp_evidence(self):
         result = subprocess.run([sys.executable, str(ROOT / 'tools/analyze.py'),
                                  str(ROOT / 'docs/validation/dos.json'),

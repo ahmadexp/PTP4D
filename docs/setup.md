@@ -152,3 +152,39 @@ DOS-side servos against the laptop-controlled hardware clock. All six selections
 completed [one-minute hardware trials](validation/servo-20261120/) after storage
 transfers finished. Enumeration, passive reception, and virtual CoreMIDI I/O are
 recorded in the earlier [local validation note](validation/coremidi-local.md).
+
+### Retaining a complete ten-minute run
+
+The normal executable keeps only its last 128 exchanges. To measure settling
+from the first complete exchange, build the separate full-capture diagnostic:
+
+```sh
+python3 build-dos.py --bcc-dir /path/to/BORLAND --dosbox /path/to/dosbox-x --full-capture
+```
+
+Copy `build/full-capture/PTP4D.EXE` to DOS under a distinct name such as
+`C:\PTPLONG.EXE`. This build reserves approximately 235 KiB of additional
+conventional memory before taking card ownership. Its 2560-record capacity
+holds a 600-second run at 4 Hz; filling the buffer stops the session with an
+explicit error instead of discarding earlier samples. Use the normal build
+for continuous runs.
+
+Start the laptop grandmaster, then promptly run:
+
+```dos
+C:\PTPLONG /PTP 600 /SERVO PI /SYNC NONE > C:\LPI01.LOG
+```
+
+The utility stores samples in RAM during the timing session and writes the
+complete report after STOP and card restoration. Stop the laptop controller
+after the follower returns to DOS, verify both STOP results, and read back the
+report. Give each trial, including preliminary checks, a unique DOS filename.
+Repeat for the other five servo selections with a fresh session on both devices.
+Do not open other MIDI applications, create virtual MIDI endpoints, or run the
+native CoreMIDI test suite during an active hardware trial.
+
+The [long-run comparison](validation/servo-long-20261120/) includes five completed
+ten-minute runs and the full 379.8-second LINREG capture interrupted by a
+serial-console timeout, with settling measurements, final-five-minute stability
+statistics, and graphs. Its [protocol](validation/servo-long-20261120/protocol.md) defines
+the fixed settling band, required dwell, validation, and measurement limits.

@@ -11,9 +11,11 @@
 The host controller also supports **macOS CoreMIDI** alongside Linux
 ALSA, including device listing and a receive-only check. Mac enumeration, passive
 TimeStick telemetry, and virtual MIDI input/output have been tested. All six
-follower servo selections completed one-minute PC110 hardware trials against
-the Mac-controlled TimeStick, with complete timestamp matches and verified STOPs.
-[Hardware comparison and evidence](docs/validation/servo-20261120/).
+follower servo selections completed one-minute PC110 hardware trials against the
+Mac-controlled TimeStick. Longer tests captured five complete ten-minute runs
+and a LINREG run interrupted after about 6 minutes 20 seconds, with every
+captured timestamp pair verified and both devices stopped cleanly.
+[Full-capture comparison and evidence](docs/validation/servo-long-20261120/).
 [Mac setup and servo trial procedure](docs/setup.md) |
 [CoreMIDI validation](docs/validation/coremidi-local.md).
 
@@ -30,7 +32,7 @@ The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures an
 - Live offset, mean path delay, and acknowledged frequency-correction display.
 - Timed runs or continuous operation until **Esc**.
 - Renewable 15-second device leases and verified STOP acknowledgements.
-- CSV output containing the last 128 complete hardware timestamp exchanges.
+- CSV output containing the last 128 complete hardware timestamp exchanges; a separate diagnostic build captures up to 2560 records without overwriting.
 - Runtime selection of firmware `PI` or DOS-side `HOST_PI`, `AUTO_PI`, `LINREG`, `KALMAN`, and `PLLFLL`.
 - A Linux/macOS TimeStick grandmaster controller and an optional Linux SSH/COMrade pair controller.
 
@@ -138,22 +140,40 @@ The pair controller starts a transient `ptp4d-gm` user service, launches PTP4D t
 
 ## Servo comparison
 
-All six selections completed separate one-minute hardware trials with the
-Mac-controlled TimeStick. All **768 retained exchanges** matched the grandmaster
-timestamps and independent arithmetic, with zero grandmaster timestamp errors
-and verified STOP/restoration at both ends.
+Five selections completed **ten-minute hardware runs** with the Mac-controlled
+TimeStick. LINREG's run was interrupted by a serial-console timeout after a
+**379.8-second capture** and stopped cleanly. All **13,495 accepted exchanges** are preserved,
+including startup settling from the first complete measurement. Every t1 and t4
+matched the grandmaster, every offset and path delay recomputed correctly,
+and both endpoints verified STOP/restoration. There were zero timestamp errors
+or missing sequence numbers.
 
-![Six servo offset traces and final-window detail](docs/validation/servo-20261120/servo-offsets.png)
+![Servo settling and final-five-minute RMS offset, with interrupted LINREG marked](docs/validation/servo-long-20261120/long-servo-comparison.png)
 
-The graphs show the final 128 exchanges, about 32 seconds, from each run.
-The shaded portion is the final 40 exchanges, enlarged on the right. Startup
-is outside the retained window. HOST_PI still had a positive residual in this
-trial; the other final-window means were within 5 ns of zero. These separate
-runs have different initial conditions and do not establish a controller ranking
-or independent PPS/UTC accuracy.
+Settling means entry into an inclusive +/-100 ns band followed by 20 continuous
+seconds inside it. Stability statistics use the final 300 seconds of each run.
+LINREG's statistics therefore describe an earlier and shorter observation period.
 
-[Frequency-correction graphs, offset distributions, and results](docs/validation/servo-20261120/#graphs)
-include PNG and SVG figures, all 768 samples in CSV, and reproducible plotting code.
+| Servo | Settling entry (s) | Final-five-minute RMS (ns) | Peak absolute offset in that window (ns) |
+| --- | ---: | ---: | ---: |
+| `PI` | 34.0 | 7.21 | 18.5 |
+| `HOST_PI` | 49.0 | 6.70 | 17.5 |
+| `AUTO_PI` | 36.5 | 6.15 | 20.0 |
+| `LINREG` (interrupted) | 29.0 | 6.14 | 21.0 |
+| `KALMAN` | 28.8 | 7.01 | 20.5 |
+| `PLLFLL` | 29.0 | 6.63 | 20.0 |
+
+The [full comparison](docs/validation/servo-long-20261120/) includes startup
+and complete-run traces, final-five-minute stability, frequency corrections,
+confirmation times, later excursions, and all samples as CSV. PNG and SVG
+figures are reproducible with `python3 tools/plot_long_servos.py`.
+
+The separate full-capture diagnostic retains 2560 records in RAM; the released
+v0.5 executable still retains its final 128 exchanges. See the
+[build and trial procedure](docs/setup.md#retaining-a-complete-ten-minute-run).
+These are single runs with different durations and initial conditions, not a definitive
+controller ranking or independent PPS/UTC calibration. The earlier
+[one-minute comparison](docs/validation/servo-20261120/) remains available.
 
 ## Original 0.4 measurement
 
@@ -179,9 +199,10 @@ python3 tools/analyze.py docs/validation/dos.json docs/validation/grandmaster.js
 ```
 
 To regenerate the original figure, install `matplotlib` in a Python environment
-and run `python3 tools/plot.py`. The six-servo figures use
-`python3 tools/plot_servos.py` with Matplotlib 3.11.2; see the
-[plotting instructions](docs/validation/servo-20261120/#reproduce-the-graphs).
+and run `python3 tools/plot.py`. The long-run servo figures use
+`python3 tools/plot_long_servos.py` with Matplotlib 3.11.2; see the
+[plotting instructions](docs/validation/servo-long-20261120/#reproduce-the-analysis-and-graphs).
+The earlier one-minute figures use `python3 tools/plot_servos.py`.
 
 ## Build and test
 

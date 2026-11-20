@@ -1,5 +1,12 @@
 # Ten-minute servo comparison protocol
 
+Outcome: five runs completed this protocol. LINREG was interrupted after a
+379.8-second capture by a serial-console timeout and controlled Esc. Its entire
+capture is retained as interrupted evidence, with separate completion status;
+it does not meet the full-duration/no-forced-Esc acceptance below. Graphs mark
+the shorter run and use its actual final 300 seconds for descriptive statistics.
+The original plan and thresholds below remain unchanged.
+
 The plan was recorded before the long runs on 2026-11-20. Each selection runs
 for 600 seconds on the same IBM PC110, PicoPCMCIA, and TimeStick pair, in domain
 42 at 4 Hz with `/SYNC NONE`. The laptop controls the grandmaster through CoreMIDI.

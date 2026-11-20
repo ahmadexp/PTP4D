@@ -1,0 +1,13 @@
+{
+  "dos_prompt": true,
+  "resident_card_handshake": true,
+  "sd_directory_readable": true,
+  "executable_crc32": "fb604b5e",
+  "executable_matches_transferred_copy": true,
+  "saved_swd_state": false,
+  "grandmaster_phase": 9,
+  "grandmaster_restored": 1,
+  "grandmaster_armed": 0,
+  "passive_commands_sent": 0,
+  "timing_sessions_stopped": true
+}

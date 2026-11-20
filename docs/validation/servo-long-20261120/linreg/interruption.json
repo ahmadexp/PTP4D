@@ -1,0 +1,16 @@
+{
+  "completed_planned_duration": false,
+  "component": "COMrade serial-console capture",
+  "exception": "TimeoutError",
+  "message": "DOS request op=0xa timed out after 8.0s",
+  "console_read_timeout_seconds": 8.0,
+  "harness_sent_escape": true,
+  "dos_prompt_returned": true,
+  "dos_stop_and_restoration_verified": true,
+  "grandmaster_stop_and_restoration_verified": true,
+  "report_transfer_checksum_verified": true,
+  "captured_records": 1519,
+  "capture_span_seconds": 379.797848396,
+  "missing_sequence_numbers": 0,
+  "grandmaster_timestamp_errors": 0
+}

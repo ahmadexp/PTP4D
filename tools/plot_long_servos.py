@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recompute and plot the full ten-minute PC110 servo captures."""
+"""Recompute and plot PC110 servo captures, retaining interruption labels."""
 import argparse
 import csv
 import json
@@ -35,11 +35,14 @@ def load(data):
                             plan['stability_window_seconds'])
         metrics.update(servo=name, host_commands=accepted['host_commands'],
                        renewals=accepted['renewals'], sync_gaps=accepted['sync_gaps'],
-                       delay_gaps=accepted['delay_gaps'])
+                       delay_gaps=accepted['delay_gaps'],
+                       completed_planned_duration=accepted['completed_planned_duration'],
+                       requested_seconds=accepted['requested_seconds'], end_reason=accepted['end_reason'])
         if metrics['sample_gaps_over_limit'] or metrics['sync_gaps'] or metrics['delay_gaps']:
             raise ValueError(f'{name}: missing samples invalidate a continuous comparison')
         times = [(r['t_ns'][0] - rows[0]['t_ns'][0]) / 1e9 for r in rows]
-        trials.append(dict(name=name, color=color, rows=rows, times=times, metrics=metrics))
+        label=name if accepted['completed_planned_duration'] else name+'*'
+        trials.append(dict(name=name, label=label, color=color, rows=rows, times=times, metrics=metrics))
     return plan, trials
 
 
@@ -89,7 +92,7 @@ def figures(data, plan, trials):
     max_offset = max(abs(r['offset_ns']) for t in trials for r in t['rows'])
     ylim = 10 ** math.ceil(math.log10(max(max_offset, 1000)))
     for name, title, xmax in (
-        ('long-servo-offsets', 'Ten minutes with each servo', span),
+        ('long-servo-offsets', 'Full captures from six servo runs', span),
         ('long-servo-settling', 'Settling from the first complete exchange', 120),
     ):
         fig, axes = plt.subplots(2, 3, figsize=(13.2, 8.4), sharex=True, sharey=True)
@@ -102,20 +105,23 @@ def figures(data, plan, trials):
             ax.set_yscale('symlog', linthresh=band)
             ax.set_ylim(-ylim, ylim)
             ax.set_xlim(0, xmax)
+            if not trial['metrics']['completed_planned_duration'] and xmax > trial['times'][-1]:
+                ax.axvspan(trial['times'][-1], xmax, color='#E2E8F0', alpha=.65)
+                ax.text(.98, .08, 'No data after 379.8 s', transform=ax.transAxes, ha='right', fontsize=8)
             entry = trial['metrics']['settling_entry_seconds']
             confirmed = trial['metrics']['settling_confirmed_seconds']
             label = 'No qualifying dwell' if entry is None else f'Entry {entry:.1f} s; confirmed {confirmed:.1f} s'
             if entry is not None:
                 ax.axvline(entry, color=trial['color'], linestyle='--', linewidth=1)
                 ax.axvspan(entry, confirmed, color=trial['color'], alpha=.07)
-            ax.set_title(trial['name'], loc='left', fontsize=12, fontweight='bold', pad=10)
+            ax.set_title(trial['label'], loc='left', fontsize=12, fontweight='bold', pad=10)
             ax.text(.02, .96, label, transform=ax.transAxes, va='top', fontsize=9,
                     bbox=dict(facecolor='white', edgecolor='none', alpha=.8, pad=2))
         fig.supylabel('Reported PTP offset (ns), symmetric log scale', x=.012, fontsize=12)
         fig.supxlabel('Seconds since first complete accepted exchange', y=.13, fontsize=12)
         fig.text(.075, .048,
-                 'All accepted exchanges are retained. Linear scale inside the green band, logarithmic outside it; axes match across panels.\n'
-                 'Entry marks the start of the first uninterrupted dwell. Initial offsets differ; hardware startup before the first exchange is excluded.',
+                 'All accepted exchanges retained; axes match. Linear inside the green band, logarithmic outside. Hardware startup is excluded.\n'
+                 '* LINREG ended at 379.8 s after a serial-console timeout; other runs span about 599 s. No missing data is filled.',
                  fontsize=9.8, color='#475569', linespacing=1.7)
         save(fig, name)
 
@@ -139,12 +145,12 @@ def figures(data, plan, trials):
         ax.set_ylim(-limit, limit)
         ax.set_xticks([-300, -200, -100, 0])
         m = trial['metrics']
-        ax.set_title(f"{trial['name']}  |  mean {m['stability_mean_offset_ns']:.2f}, SD {m['stability_stddev_offset_ns']:.2f} ns",
+        ax.set_title(f"{trial['label']}  |  mean {m['stability_mean_offset_ns']:.2f}, SD {m['stability_stddev_offset_ns']:.2f} ns",
                      loc='left', fontsize=10.5, pad=12)
     fig.supylabel('Reported PTP offset (ns)', x=.015, fontsize=12)
     fig.supxlabel('Seconds relative to last complete exchange', y=.13, fontsize=12)
     fig.text(.075, .05,
-             'All points in the final 300-second window are shown. The 10-second mean is a labeled summary, not a replacement for raw samples.\n'
+             '* LINREG: final 300 s of its interrupted 379.8 s capture; others: final 300 s of about 599 s. Every raw point is shown.\n'
              'Reported offsets assume symmetric paths. No external PPS/UTC calibration or long-term stability measurement was made.',
              fontsize=10, color='#475569', linespacing=1.7)
     save(fig, 'long-servo-stability')
@@ -163,12 +169,15 @@ def figures(data, plan, trials):
         ax.set_yscale('symlog', linthresh=10)
         ax.set_ylim(-rate_limit, rate_limit)
         ax.set_xlim(0, span)
-        ax.set_title(trial['name'], loc='left', fontsize=12, fontweight='bold', pad=10)
+        if not trial['metrics']['completed_planned_duration']:
+            ax.axvspan(trial['times'][-1], span, color='#E2E8F0', alpha=.65)
+            ax.text(.98, .08, 'No data after 379.8 s', transform=ax.transAxes, ha='right', fontsize=8)
+        ax.set_title(trial['label'], loc='left', fontsize=12, fontweight='bold', pad=10)
     fig.supylabel('Reported frequency correction (ppb), symmetric log scale', x=.012, fontsize=12)
     fig.supxlabel('Seconds since first complete accepted exchange', y=.13, fontsize=12)
     fig.text(.075, .05,
              'Linear scale between -10 and +10 ppb, logarithmic outside. Steps connect reports; exact USB actuation times are not plotted.\n'
-             'Large early corrections include removal of initial phase error. They are not a direct measurement of oscillator frequency drift.',
+             '* LINREG was interrupted at 379.8 s. Large early corrections remove phase error; they do not directly measure oscillator drift.',
              fontsize=10, color='#475569', linespacing=1.7)
     save(fig, 'long-servo-corrections')
 
@@ -180,7 +189,7 @@ def figures(data, plan, trials):
         axes_style(ax)
         ax.grid(False)
         ax.grid(axis='x', color='#E2E8F0', linewidth=.7)
-        ax.set_yticks(range(6), ORDER)
+        ax.set_yticks(range(6), [t['label'] for t in trials])
         ax.invert_yaxis()
     for i, trial in enumerate(trials):
         entry = trial['metrics']['settling_entry_seconds']
@@ -198,7 +207,7 @@ def figures(data, plan, trials):
         ax.set_xlim(0, ax.get_xlim()[1] * 1.3)
     fig.text(.075, .065,
              'RMS includes both mean offset and sample variation. The accompanying table also reports SD, 95th percentile, peak, and later excursions.\n'
-             'One 10-minute run per servo, in a recorded randomized order. Different initial offsets limit direct performance ranking.',
+             '* LINREG was interrupted at 379.8 s; five other runs completed 10 minutes. Different durations and initial offsets limit ranking.',
              fontsize=9.8, color='#475569', linespacing=1.7)
     save(fig, 'long-servo-comparison')
 

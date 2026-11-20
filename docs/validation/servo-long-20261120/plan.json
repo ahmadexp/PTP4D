@@ -1,0 +1,18 @@
+{
+  "seconds_per_servo": 600,
+  "order": [
+    "AUTO_PI",
+    "PI",
+    "HOST_PI",
+    "PLLFLL",
+    "KALMAN",
+    "LINREG"
+  ],
+  "seed": 20261120,
+  "settling_band_ns": 100,
+  "settling_dwell_seconds": 20,
+  "stability_window_seconds": 300,
+  "rolling_window_seconds": 10,
+  "time_origin": "first complete accepted exchange",
+  "capture_records": 2560
+}

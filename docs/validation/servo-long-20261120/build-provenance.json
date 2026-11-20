@@ -1,0 +1,22 @@
+{
+  "base_commit": "40c247ea17cf9344c8140bacf91bedc6d7654fd6",
+  "build_option": "--full-capture",
+  "source_sha256": {
+    "BUILD.BAT": "48e7bdda7d29245a7f6b77eefb102ce8e033005ea470014a6af8c43464537241",
+    "CAPTURE.H": "c279a38130cf5b219f439f129b55646f2944d09e7906c23ee9a8b8a5d63c235a",
+    "CLOCK.C": "892d1548fb8f121f1fc9400167e9900bfcf766a9f8b30e35ea6ae59972dd5855",
+    "CLOCK.H": "0130829b26b4fc766110c74bfd6ffcd7f7efc6d1c81e57afe252019848a1dd23",
+    "OPTIONS.C": "9a18b9a8868931f47f3b5ca9967ffaff327563720ac99b54a9dcb3762a7d7fe4",
+    "OPTIONS.H": "124e8b694482cab39d876a539ff5de7fb0174a81f264f79b0cb8dcf308851564",
+    "PTP4D.C": "41d32b1ab7326ea80a5e8d5b63ea3d33fbc0030a6a4feeb1a6b8d760e621fd1b",
+    "SERVO.C": "10c87e3c9cc51d6c8a5cdfb03edd6a3571821734d0ae03149c72f8e17ee3f1b5",
+    "SERVO.H": "e0b291e79e1959a98ba8a8a9c1be88f292b920e5c17373c05771abebff115ad9",
+    "TSMIDI.C": "e426a8e3793281034807625707a57a96999e81407dcc9199b803253d57acec96",
+    "TSMIDI.H": "dbf858b520b3d07504a9a19af3dce0212ac9d18e0eaf353c51226b2f7d3a2402",
+    "TSWIRE.C": "a14443113e8e4b7341e2e98807f3d86a2ad3f12b5816bdcf2b8e5d5a26d1aeb5",
+    "TSWIRE.H": "62cc8bc40c020a95852a9c1659a655c12fb3cc0cacd8bc46bf28ca820ba12bef"
+  },
+  "executable_sha256": "f79a23670d0d21367bc23121115d8ae99283c347157d087776fbbd53733b2c8f",
+  "capture_source_commit": "7a374840734189455135e8041bffa42000e040e1",
+  "source_hash_encoding": "CRLF working-tree files, as selected by .gitattributes for the DOS build"
+}
