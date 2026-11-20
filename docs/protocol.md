@@ -2,11 +2,11 @@
 
 ## DOS and PicoPCMCIA
 
-PTP4D uses the stock PicoPCMCIA v0.22 USB pass-through mailbox, protocol 2. It first asks the resident PICOCARD driver for its memory window, verifies firmware version and startup state, and obtains exclusive staging ownership. Saved SWD state, busy mailboxes, active block-disk mode, or unsupported firmware cause a refusal before transfers begin.
+PTP4D uses the PicoPCMCIA v0.22 USB pass-through mailbox, protocol 2. The historical run used stock firmware; numeric version words do not distinguish patch suffixes. New clock modes have not yet been hardware-validated with usbfix4. It first asks the resident PICOCARD driver for its memory window, verifies firmware version and startup state, and obtains exclusive staging ownership. Saved SWD state, busy mailboxes, active block-disk mode, or unsupported firmware cause a refusal before transfers begin.
 
 USB slot 0 is at offset `04E8h`, the four port-generation words at `0568h`, and shared staging at `1000h`. A command's tag byte is written before the opcode byte. Completion requires the matching tag, successful status, a bounded returned length, and an unchanged port generation. USB control requests in the utility are IN-only. Selected MIDI timing commands use bulk OUT.
 
-The utility disarms PICOCARD and stops SD/CD streams before accessing staging. It avoids DOS console and filesystem calls while holding staging; the live display uses BIOS video services. A transfer timeout requests a USB stack reset and waits for the old generation to disappear before releasing memory. Failed recovery leaves the resident disarmed and requires a DOS reboot.
+The utility disarms PICOCARD and stops SD/CD streams before accessing staging. It avoids DOS console and filesystem calls while holding staging. Explicit PHC2DOS mode uses only the DOS date/time CLOCK$ services during ownership; the live display uses BIOS video services. A transfer timeout requests a USB stack reset and waits for the old generation to disappear before releasing memory. Failed recovery leaves the resident disarmed and requires a DOS reboot.
 
 ## TimeStick identification and transport
 
@@ -20,9 +20,9 @@ The host rejects unsolicited or mismatched ACKs. A command reply must match its 
 
 ## Servo and leases
 
-The DOS side chooses firmware profile 1, the PI follower. The Linux peer chooses profile 2, the hardware grandmaster. Both use domain 42 and a 4 Hz exchange rate. Clock-only reads use profile 4.
+The compatible default chooses firmware profile 1, the PI follower. New host controllers use profile 3 after an op 6 capability query. Either DOS or Linux can select profile 2, the fixed-peer free-running source. These use domain 42 and a 4 Hz exchange rate. Clock-only reads use profile 4. See the [protocol capability audit](servo-inventory.md).
 
-The PI controller runs inside TimeStick firmware. Hardware timestamps yield the offset and path-delay measurement; the firmware applies bounded frequency corrections with anti-windup. PTP4D observes the acknowledged correction and does not run another PI loop on the PC110.
+The PI controller runs inside TimeStick firmware. Hardware timestamps yield the offset and path-delay measurement; the firmware applies bounded frequency corrections with anti-windup. In profile 1, PTP4D observes the acknowledged correction. In profile 3, the firmware disables its network PI controller and DOS supplies bounded op 7 corrections. The two controllers never run together.
 
 PTP sessions explicitly negotiate renewable operation with a 15-second lease. DOS renews roughly every four seconds, and Linux every five. Renewals bind to the active generation. STOP must acknowledge an unarmed session and restored nominal frequency/buffers. A missing renewal cannot revive an expired generation. A stale follower exchange stream terminates the DOS run.
 
@@ -39,4 +39,4 @@ mean path delay = ((t2 - t1) + (t4 - t3)) / 2
 
 The last 128 unique exchanges are retained in memory and emitted as CSV after releasing the card. The published evidence contains the timing records and omits machine/account/network identifiers. Screenshots are direct, unedited KVM captures of the physical PC110 display.
 
-A small reported PTP offset assumes symmetric path delay. It is not proof of absolute UTC accuracy or externally calibrated PPS alignment. DOS and Linux system clocks remain unchanged.
+A small reported PTP offset assumes symmetric path delay. It is not proof of absolute UTC accuracy or externally calibrated PPS alignment. DOS and Linux system clocks remained unchanged in that evidence run. The new explicit PHC2DOS path has separate [civil-time gates and limitations](clock-modes.md); it has not been hardware-validated.

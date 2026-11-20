@@ -6,13 +6,15 @@
 
 **[Download PTP4D.EXE](https://github.com/ahmadexp/PTP4D/releases/latest/download/PTP4D.EXE)** | [Release notes](https://github.com/ahmadexp/PTP4D/releases/latest) | [SHA-256 checksum](https://github.com/ahmadexp/PTP4D/releases/latest/download/SHA256SUMS)
 
-The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. The DOS system clock is unchanged.
+**Development source: 0.5-dev.** Runtime servo selection, explicit follower/GM roles, and guarded PHC-to-DOS time copying are implemented and locally tested. The download and `bin/PTP4D.EXE` are still the hardware-tested 0.4 release. [New switches and clock behavior](docs/clock-modes.md) | [Servo inventory and protocol limits](docs/servo-inventory.md). DOS-derived grandmaster time is unavailable with the inspected firmware and is rejected before hardware access.
+
+The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. In that original 0.4 configuration, the DOS system clock is unchanged.
 
 ![PTP4D running on the IBM PC110's built-in display](docs/photos/pc110-running-ptp4d.png)
 
 *PTP4D on the PC110's own display during convergence, showing the measured offset, path delay, and frequency correction.*
 
-## What works
+## Hardware-verified 0.4 behavior
 
 - TimeStick identification and hardware-clock reads over USB MIDI.
 - PTP follower operation in domain **42**, at **4 exchanges per second**.
@@ -22,7 +24,7 @@ The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures an
 - CSV output containing the last 128 complete hardware timestamp exchanges.
 - A Linux TimeStick grandmaster controller and an optional SSH/COMrade pair controller.
 
-The DOS program configures a **PI (proportional-integral) servo inside the TimeStick firmware**. It does not implement a separate DOS-side servo or timestamp packets using the PC110 CPU.
+The default configures a **PI (proportional-integral) servo inside the TimeStick firmware**. Development builds additionally offer DOS-side `HOST_PI`, `AUTO_PI`, `LINREG`, `KALMAN`, and `PLLFLL` controllers through the firmware's host-control profile. Ethernet timestamps always come from the TimeStick hardware. See [controller placement and licensing](docs/servo-inventory.md).
 
 ![PTP4D running on a real IBM PC110, captured through a Lantronix KVM](docs/screenshots/ptp4d-live.png)
 
@@ -80,9 +82,32 @@ C:\PTP4D /PTP 0
 | `PTP4D /DIAG` | Passive read with additional status |
 | `PTP4D /CARD` | Restore card-managed USB ownership |
 
-PTP durations are `0` or `10..3600` seconds. PTP4D runs in the foreground. Stop it before running another DOS command. The build deliberately rejects Windows and Pico firmware versions other than v0.22.
+PTP durations are `0` or `10..3600` seconds. PTP4D runs in the foreground. Stop it before running another DOS command. The build deliberately rejects Windows and firmware reporting versions other than v0.22/protocol 2. The version words do not identify patch suffixes such as usbfix4; matching resident-driver and hardware validation remain necessary. Never run it while the card is exported for storage transfers or has saved SWD state.
 
 ![PTP4D command help on the physical PC110](docs/screenshots/ptp4d-help.png)
+
+## Development clock modes
+
+Build the development source to use these commands:
+
+```dos
+PTP4D /PTP 60 /SERVO KALMAN
+PTP4D /MODE GM /SYNC NONE /PTP 60
+PTP4D /PTP 0 /SYNC PHC2DOS /EPOCH UNIX /SCALE UTC /DOS UTC /VALID 3600
+```
+
+The last command requires an independently verified Unix-epoch UTC source.
+It steps DOS date/time once after acquisition; `/UPDATE TRACK` adds 30-second
+checks and coarse corrections. DOS setters may also update the battery-backed
+RTC. `/VALID` asserts source validity and an unchanged leap/timezone mapping
+for a bounded period. The existing raw-clock peer is not a verified UTC source.
+Read the [full clock-mode guide](docs/clock-modes.md) before enabling writes.
+
+`/MODE GM /SYNC NONE` serves a free-running fixed-peer hardware clock without
+Announce/BMCA or a known civil epoch. `/MODE GM` defaults to the requested
+DOS-to-PHC direction, which the current firmware cannot perform while serving
+PTP, and refuses to start. These new modes have local tests and DOS builds;
+they have no new hardware accuracy claim.
 
 ## Start both ends from a modern host
 
@@ -141,11 +166,11 @@ Portable protocol tests run on a modern host:
 python3 tools/test.py
 ```
 
-These cover USB mailbox handling, CRC and MIDI framing, descriptor bounds, signed 64-bit Q17 decoding, timestamp validation, lease-generation binding, and command restrictions. They do not emulate the PCMCIA bus or prove hardware accuracy. GitHub Actions runs the portable tests; the proprietary DOS compiler is not needed for CI.
+These cover USB mailbox handling, CRC and MIDI framing, descriptor bounds, signed 64-bit Q17 decoding, timestamp validation, lease-generation binding, command restrictions, every host servo, civil-time conversion, option conflicts, and fake-device session faults. The Borland build also runs controller/calendar/options/MIDI tests with DOSBox-X FPU emulation disabled. They do not emulate the PCMCIA bus or prove hardware accuracy. GitHub Actions runs the portable tests; the proprietary DOS compiler is not needed for CI.
 
 ## Scope and recovery
 
-The current implementation is specific to the tested PicoPCMCIA and TimeStick MIDI protocols. It is not a generic DOS packet-driver PTP stack. It does not discipline the DOS or Linux system clock.
+The current implementation is specific to the tested PicoPCMCIA and TimeStick MIDI protocols. It is not a generic DOS packet-driver PTP stack. DOS time changes only with the explicit `PHC2DOS` options described above. Linux system time is unchanged.
 
 PTP4D temporarily disarms PICOCARD and stops SD/CD prefetch while it owns shared USB staging. BIOS display output remains available; normal card services resume after a clean stop. Firmware leases expire if a controller disappears. A failed USB recovery leaves PICOCARD disarmed and requires a DOS reboot. Read [protocol and recovery notes](docs/protocol.md) before changing the low-level transport.
 

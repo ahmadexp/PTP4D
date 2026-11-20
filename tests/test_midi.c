@@ -1,4 +1,8 @@
+#ifdef __BORLANDC__
+#include "TESTDOS.H"
+#else
 #include <assert.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include "TSWIRE.H"
@@ -21,11 +25,45 @@ static unsigned packets(const unsigned char *raw,unsigned n,unsigned version,uns
         for(k=0;k<3;k++)out[bytes++]=k<num?f[i+k]:0;
     }return bytes;
 }
+static void put32(unsigned char *p,unsigned long v){unsigned i;for(i=0;i<4;i++)p[i]=(unsigned char)(v>>(8*i));}
+static void extended_tests(void) {
+    unsigned char wire[96],mac[6]={2,0,0,0,0,1},a[64];
+    tm_parser p;unsigned i,n;long ppb;
+    n=tm_host_command(42,10,-99999L,21,0xFFFF0000UL,wire,mac);assert(n==96);
+    memset(&p,0,sizeof(p));for(i=0;i<n;i+=4)tm_event(&p,wire+i);
+    assert(p.len==30&&p.raw[8]==7&&p.raw[9]==3&&p.raw[11]==0);
+    assert(ts_le32(p.raw+12)==0xFFFE7961UL&&ts_le32(p.raw+22)==21&&ts_le32(p.raw+26)==0xFFFF0000UL);
+    assert(!tm_host_command(42,10,100001L,21,0,wire,mac));
+    assert(!tm_host_command(42,10,0,0,0,wire,mac));
+    assert(!tm_host_command(0,10,0,21,0,wire,mac));
+    assert(tm_ptp_command(42,10,6,3,0,wire,mac)==76);
+    assert(tm_ptp_command(42,10,8,3,0,wire,mac)==76);
+    assert(!tm_ptp_command(42,10,9,3,0,wire,mac));
+    assert(!tm_ptp_command(42,10,10,2,0,wire,mac));
+    memset(&p,0,sizeof(p));p.len=44;p.version=3;p.kind=0x21;
+    put32(p.raw,42);put32(p.raw+4,10);p.raw[8]=7;memcpy(p.raw+22,mac,6);p.raw[28]=42;
+    assert(tm_ack_matches(&p,42,10,7,mac));
+    assert(!tm_ack_matches(&p,42,11,7,mac));assert(!tm_ack_matches(&p,43,10,7,mac));
+    p.raw[22]^=1;assert(!tm_ack_matches(&p,42,10,7,mac));p.raw[22]^=1;
+    p.len=32;assert(!tm_ack_matches(&p,42,10,7,mac));p.len=44;
+    p.raw[28]=0;assert(!tm_ack_matches(&p,42,10,7,mac));
+    memset(a,0,sizeof(a));a[10]=2;a[11]=3;put32(a+16,21);a[29]=95;a[31]=1;
+    for(ppb=-100000L;ppb<=100000L;ppb++) {
+        long change=(long)(2147483648.0*ppb/1000000000.0);
+        put32(a+32,(unsigned long)ppb);put32(a+36,(unsigned long)(2147483648.0+change));
+        assert(tm_host_ack(a,21,ppb));
+    }
+    assert(!tm_host_ack(a,22,100000L));a[36]^=1;assert(!tm_host_ack(a,21,100000L));a[36]^=1;
+    a[29]=31;assert(!tm_host_ack(a,21,100000L));a[29]=95;
+    put32(a+40,2000000001UL);assert(!tm_host_ack(a,21,100000L));
+    puts("PASS: profile 3, host commands, exact full-range addends and correlated extended ACKs.");
+}
 int main(void){
     tm_parser p;unsigned char raw[94],wire[268],mac[6]={0x02,0,0,0,0,0x02};
     unsigned char cfg[]={9,2,32,0,1,1,0,0x80,50,9,4,1,0,2,1,3,0,0,7,5,0x84,2,64,0,0,7,5,5,2,64,0,0};
     unsigned in,out,n,i,got; double offset,delay;long ppb;
-    assert(tm_crc((const unsigned char *)"123456789",9)==0x29B1);
+    extended_tests();
+    assert(tm_crc((const unsigned char *)"123456789L",9)==0x29B1);
     assert(tm_endpoints(cfg,sizeof cfg,&in,&out) && in==0x84 && out==5);
     cfg[23]=1;assert(!tm_endpoints(cfg,sizeof cfg,&in,&out));cfg[23]=0;
     cfg[29]=32;assert(!tm_endpoints(cfg,sizeof cfg,&in,&out));cfg[29]=64;
@@ -74,7 +112,7 @@ int main(void){
     raw[0]=0;assert(tm_signed(raw,8)==-256.0);
     memset(raw,0,94);raw[10]=31;raw[11]=42;raw[12]=1;
     memset(raw+70,255,8);raw[70]=raw[71]=0;raw[72]=0xFE;
-    raw[78]=0;raw[79]=0;raw[80]=5; /* delay Q17=327680 -> 2.5ns */
+    raw[78]=0;raw[79]=0;raw[80]=5; /* delay Q17=327680L -> 2.5ns */
     memset(raw+86,255,4);raw[86]=246;raw[90]=1;
     assert(tm_ptp_sample(raw,&offset,&delay,&ppb));
     assert(offset==-1 && delay==2.5 && ppb==-10);

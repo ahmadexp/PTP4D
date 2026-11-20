@@ -1,7 +1,4 @@
-/* PTP4D: AX88279A identification/clock probe for real-mode DOS.
- * Uses stock PicoPCMCIA v0.22 USB pass-through. /CLOCK enables a five-second
- * clock-only session. /PTP runs the firmware PI follower under a renewable lease.
- */
+/* PTP4D: hardware PTP and explicit clock direction for real-mode DOS. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +6,9 @@
 #include <bios.h>
 #include "TSWIRE.H"
 #include "TSMIDI.H"
+#include "OPTIONS.H"
+#include "SERVO.H"
+#include "CLOCK.H"
 
 static unsigned seg;
 static int held, recovery;
@@ -23,7 +23,7 @@ static char diagnostics[8][240];
 static tm_parser midi;
 static unsigned ep_in, ep_out, frames, heartbeats, flags;
 static unsigned long generation, sample_generation, ack_generation, started_generation;
-static unsigned char mac[6], command_bytes[76];
+static unsigned char mac[6], command_bytes[96], ack_data[94];
 static unsigned long nonce, sequence, last_sample_seq;
 static int sample_count, clock_started, clock_stopped, ack_result=-1, captured;
 static unsigned ack_phase, ack_profile, ack_restored, ack_armed;
@@ -36,6 +36,21 @@ static void collect_ptp(void);
 static int ptp_run(void);
 static void ptp_report(void);
 static unsigned long ack_error;
+
+static pt_options options;
+static pt_servo controller;
+static pt_timer timer;
+static unsigned profile=1, stable_samples;
+static unsigned long gm_syncs,gm_responses,gm_errors,host_commands;
+static unsigned long bridge_updates,bridge_last,session_begin,ack_received_tick;
+static unsigned long pending_token,pending_ms;
+static long pending_ppb;
+static double pending_offset;
+static int host_pending,bridge_set;
+static char runtime_reason[160];
+static unsigned long raw_ticks(void);
+static int bridge_update(void);
+
 
 
 unsigned ts_rd(unsigned off) {
@@ -50,7 +65,7 @@ unsigned char ts_rd8(unsigned off) {
 void ts_wr8(unsigned off, unsigned char value) {
     *(volatile unsigned char far *)MK_FP(seg, off) = value;
 }
-unsigned long ts_ticks(void) {
+static unsigned long raw_ticks(void) {
     unsigned long a, b;
     do {
         a = *(volatile unsigned long far *)MK_FP(0x40, 0x6C);
@@ -58,6 +73,7 @@ unsigned long ts_ticks(void) {
     } while (a != b);
     return a;
 }
+unsigned long ts_ticks(void) {return pt_timer_read(&timer,raw_ticks());}
 void ts_poll(void) { }
 static unsigned mux(unsigned fn) {
     union REGS r;
@@ -205,9 +221,13 @@ static void telemetry(void) {
     if(midi.len!=94 || !((midi.version==2 && midi.kind==0x10) ||
        (midi.version==3 && midi.kind==0x22)) || memcmp(midi.raw+4,mac,6) ||
        midi.raw[11]!=42) return;
-    flags=midi.raw[10];generation=ts_le32(midi.raw+12);heartbeats++;
+    flags=midi.raw[10];
     if((midi.kind==0x10 && flags!=0 && flags!=1 && flags!=3 && flags!=31) ||
        (midi.kind==0x22 && flags>15)) return;
+    generation=ts_le32(midi.raw+12);heartbeats++;
+    if(ptp_started && started_generation && generation!=started_generation) {
+        strcpy(runtime_reason,"Device generation changed during the session.");return;
+    }
     if(ptp_mode)collect_ptp();
     seq=ts_le32(midi.raw);
     if(sample_count && sample_generation!=generation) {
@@ -221,22 +241,22 @@ static void telemetry(void) {
 /* Receive whole frames across any USB packet boundary. An ACK is accepted only
    when nonce, sequence, opcode, MAC, domain, framing and CRC all match. */
 static int receive(unsigned op,unsigned long ticks_limit) {
-    unsigned n,i; int r; unsigned long start=ts_ticks();
+    unsigned n,i; int r,found=0; unsigned long start=ts_ticks();
     do {
         r=bulk(ep_in,64,buffer,&n);
         if(r!=TS_OK) return r;
         if(n&3) return TS_SHORT;
         for(i=0;i<n;i+=4) if(tm_event(&midi,buffer+i)) {
             frames++;telemetry();
-            if(op && midi.version==3 && midi.kind==0x21 &&
-               midi.len==(op==8?64:32) && ts_le32(midi.raw)==nonce &&
-               ts_le32(midi.raw+4)==sequence && midi.raw[8]==op &&
-               !memcmp(midi.raw+22,mac,6) && midi.raw[28]==42) {
-                ack_result=midi.raw[9];ack_phase=midi.raw[10];ack_profile=midi.raw[11];
-                ack_error=ts_le32(midi.raw+12);ack_generation=ts_le32(midi.raw+16);ack_restored=midi.raw[30];ack_armed=midi.raw[31];
-                return TS_OK;
+            if(op && tm_ack_matches(&midi,nonce,sequence,op,mac)) {
+                memcpy(ack_data,midi.raw,midi.len);ack_received_tick=ts_ticks();
+                ack_result=ack_data[9];ack_phase=ack_data[10];ack_profile=ack_data[11];
+                ack_error=ts_le32(ack_data+12);ack_generation=ts_le32(ack_data+16);
+                ack_restored=ack_data[30];ack_armed=ack_data[31];found=1;
             }
         }
+        /* Consume the whole USB packet, retaining any following partial frame. */
+        if(found)return TS_OK;
         if(!op && !ptp_mode && sample_count>=2) return TS_OK;
     } while(ts_elapsed(start)<ticks_limit);
     return op?TS_SHORT:TS_OK;
@@ -258,7 +278,7 @@ static int read_midi(int enable) {
     r=midi_setup();if(r!=TS_OK)return r;
     r=receive(0,37UL);if(r!=TS_OK || sample_count>=2 || !enable)return r;
     if(!heartbeats) return TS_SHORT;
-    nonce=(ts_ticks()^ts_le32(mac+2)^0x54530000UL)&0xFFFFFFFFUL;
+    nonce=(raw_ticks()^ts_le32(mac+2)^0x54530000UL)&0xFFFFFFFFUL;
     if(!nonce)nonce=1;
     r=command(1,0);
     if(r!=TS_OK || ack_result || ack_error || ack_armed || !ack_restored) return r==TS_OK?TS_BUSY:r;
@@ -273,9 +293,9 @@ static int read_midi(int enable) {
         sprintf(diagnostics[3],"Clock capture ACK: USB %d, result %d, phase %u, profile %u, error %lu, armed %u",r,ack_result,ack_phase,ack_profile,ack_error,ack_armed);
         if(r==TS_OK && !ack_result && !ack_error && ack_phase==2 &&
            ack_profile==4 && ack_armed && ack_generation==started_generation &&
-           midi.raw[29]==127 && ts_le32(midi.raw+60)==3UL) {
+           ack_data[29]==127 && ts_le32(ack_data+60)==3UL) {
             sample_count=0;sample_valid[0]=sample_valid[1]=0;
-            save_stamp(midi.raw+32);save_stamp(midi.raw+42);
+            save_stamp(ack_data+32);save_stamp(ack_data+42);
             if(sample_count!=2)r=TS_SHORT; else captured=1;
         } else if(r==TS_OK)r=TS_INVALID;
     }
@@ -295,60 +315,211 @@ static void bios_text(const char *s) {
     }
 }
 static void collect_ptp(void) {
-    double offset,delay;long ppb;unsigned sync,dseq;char line[100];
-    if(!ptp_started || generation!=started_generation || midi.version!=2 ||
-       midi.kind!=0x10 || !tm_ptp_sample(midi.raw,&offset,&delay,&ppb))return;
+    double offset,delay;long ppb;unsigned sync,dseq;char line[120];
+    unsigned long count;
+    if(!ptp_started || generation!=started_generation)return;
+    if(options.role==2) {
+        if(midi.version!=3||midi.kind!=0x22||(flags&3)!=3||
+           midi.raw[74]!=2||midi.raw[75]!=2||ts_le32(midi.raw+76)||
+           midi.raw[82]||midi.raw[83]!=1||ts_le32(midi.raw+22)>=1000000000UL)return;
+        gm_errors=ts_le32(midi.raw+70);
+        if(gm_errors){strcpy(runtime_reason,"Grandmaster timestamp error.");return;}
+        count=ts_le32(midi.raw+54);
+        if(count>gm_syncs) {
+            gm_syncs=count;gm_responses=ts_le32(midi.raw+62);ptp_last_tick=ts_ticks();
+            if(gm_syncs%4==0) {
+                sprintf(line,"GM: %lu Follow_Up, %lu Delay_Resp; free-running, epoch unknown\r\n",gm_syncs,gm_responses);
+                bios_text(line);
+            }
+        }
+        return;
+    }
+    if(midi.version!=2||midi.kind!=0x10||!tm_ptp_sample(midi.raw,&offset,&delay,&ppb)) {
+        stable_samples=0;return;
+    }
     sync=ts_le16(midi.raw+26);dseq=ts_le16(midi.raw+28);
-    if(ptp_exchanges && sync==ptp_sync && dseq==ptp_delay)return;
+    if(ptp_exchanges && ((!((sync-ptp_sync)&65535u)) ||
+       ((sync-ptp_sync)&65535u)>=32768u || !((dseq-ptp_delay)&65535u) ||
+       ((dseq-ptp_delay)&65535u)>=32768u))return;
+    if(ptp_exchanges && ts_elapsed(ptp_last_tick)>27UL)stable_samples=0;
     ptp_sync=sync;ptp_delay=dseq;ptp_last_tick=ts_ticks();ptp_exchanges++;
     memcpy(ptp_records[ptp_next],midi.raw,94);
     ptp_next=(ptp_next+1)%PTP_RECORDS;if(ptp_used<PTP_RECORDS)ptp_used++;
+    if(offset>=-1000000.0 && offset<=1000000.0) {
+        if(stable_samples<8)stable_samples++;
+    }else stable_samples=0;
+    if(options.servo) {
+        pending_token=ts_le32(midi.raw+26);pending_offset=offset;pending_ppb=ppb;
+        pending_ms=(ts_le32(midi.raw+30)*1000UL+ts_le32(midi.raw+36)/1000000UL)&0xFFFFFFFFUL;
+        host_pending=1;
+    }
     sprintf(line,"PTP4D %lu: offset %.1f ns, delay %.1f ns, rate %ld ppb\r\n",ptp_exchanges,offset,delay,ppb);
     bios_text(line);
 }
-static int ptp_command(unsigned op) {
-    unsigned n,actual,offset,part;int r;
-    sequence++;ack_result=-1;
-    n=tm_ptp_command(nonce,sequence,op,1,op==4?started_generation:0,command_bytes,mac);
+static int send_command(unsigned n,unsigned op) {
+    unsigned actual,offset,part;int r;
     if(!n)return TS_INVALID;
     for(offset=0;offset<n;offset+=part) {
         part=n-offset;if(part>64)part=64;
         r=bulk(ep_out,part,command_bytes+offset,&actual);
         if(r!=TS_OK || actual!=part)return r==TS_OK?TS_SHORT:r;
     }
-    return receive(op,55UL);
+    return receive(op,18UL);
+}
+static int ptp_command(unsigned op) {
+    unsigned n;
+    if(sequence==0xFFFFFFFFUL)return TS_INVALID;
+    sequence++;ack_result=-1;
+    n=tm_ptp_command(nonce,sequence,op,profile,op==4?started_generation:0,command_bytes,mac);
+    return send_command(n,op);
+}
+static int host_adjust(void) {
+    unsigned n;int r;long requested;
+    if(!pt_servo_update(&controller,pending_offset,pending_ms,pending_ppb,&requested))return TS_INVALID;
+    if(sequence==0xFFFFFFFFUL)return TS_INVALID;
+    sequence++;ack_result=-1;host_pending=0;
+    n=tm_host_command(nonce,sequence,requested,started_generation,pending_token,command_bytes,mac);
+    r=send_command(n,7);
+    if(r==TS_OK && !tm_host_ack(ack_data,started_generation,requested))r=TS_INVALID;
+    if(r==TS_OK)host_commands++;
+    else strcpy(runtime_reason,"Host frequency adjustment was not acknowledged; stopping without fallback.");
+    return r;
 }
 static int ptp_run(void) {
     int r,stopped;unsigned long begin,renew;unsigned key;
+    profile=options.role==2?2:options.servo?3:1;
+    pt_servo_init(&controller,options.servo);
     r=midi_setup();if(r!=TS_OK)return r;
-    nonce=(ts_ticks()^ts_le32(mac+2)^0x50540000UL)&0xFFFFFFFFUL;
+    nonce=(raw_ticks()^ts_le32(mac+2)^0x50540000UL)&0xFFFFFFFFUL;
     if(!nonce)nonce=1;
     r=ptp_command(1);
     if(r!=TS_OK || ack_result || ack_armed)return r==TS_OK?TS_BUSY:r;
     if(ack_error==2 && ack_restored) {r=ptp_command(3);if(r!=TS_OK)return r;}
-    if(ack_result || ack_error || !ack_restored || (midi.raw[29]&7)!=7)return TS_INVALID;
-    r=ptp_command(5);if(r!=TS_OK || ack_result || ack_error)return r==TS_OK?TS_INVALID:r;
+    if(ack_result || ack_error || !ack_restored || (ack_data[29]&7)!=7)return TS_INVALID;
+    if(options.servo) {
+        r=ptp_command(6);
+        if(r!=TS_OK||ack_result||ack_error||ack_armed||!ack_restored||ack_data[29]!=95) {
+            strcpy(runtime_reason,"Firmware does not acknowledge host-servo capability (op 6). No PTP started.");
+            return TS_INVALID;
+        }
+    }
+    r=ptp_command(5);
+    if(r!=TS_OK || ack_result || ack_error || ack_data[29]!=63 ||
+       ts_le16(ack_data+20)!=4 || ack_armed || !ack_restored)return r==TS_OK?TS_INVALID:r;
+    /* Firmware increments the generation once on START, skipping zero. This
+       also lets cleanup verify STOP after a lost START acknowledgment. */
+    started_generation=(ack_generation+1UL)&0xFFFFFFFFUL;
+    if(!started_generation)started_generation=1;
     ptp_started=1; /* STOP even when START's ACK is lost */
-    r=ptp_command(2);started_generation=ack_generation;
-    if(r==TS_OK && (ack_result || ack_error || !ack_armed || ack_profile!=1 || !started_generation))r=TS_INVALID;
-    begin=renew=ts_ticks();
+    r=ptp_command(2);
+    if(r==TS_OK && (ack_result || ack_error || !ack_armed || ack_profile!=profile ||
+                   ack_restored || ack_generation!=started_generation))r=TS_INVALID;
+    begin=renew=session_begin=ts_ticks();ptp_last_tick=begin;
     while(r==TS_OK && (!ptp_seconds || ts_elapsed(begin)<(unsigned long)ptp_seconds*182UL/10UL)) {
-        r=receive(0,2UL);
+        r=receive(0,1UL);
         if(r!=TS_OK)break;
+        if(runtime_reason[0]){r=TS_INVALID;break;}
         if(bioskey(1)) {key=(unsigned)bioskey(0);if((key&255)==27){ptp_escaped=1;break;}}
+        if(options.sync==SYNC_PHC_DOS &&
+           ts_elapsed(session_begin)>=(unsigned long)options.valid_seconds*182UL/10UL) {
+            strcpy(runtime_reason,"Source-validity period expired; stopped without further clock writes.");break;
+        }
+        if(host_pending){r=host_adjust();if(r!=TS_OK)break;}
+        if(runtime_reason[0]){r=TS_INVALID;break;}
+        if(options.sync==SYNC_PHC_DOS && stable_samples>=8 &&
+           (!bridge_set || (options.track && ts_elapsed(bridge_last)>=546UL))) {
+            r=bridge_update();if(r!=TS_OK)break;
+        }
         if(ts_elapsed(renew)>=73UL) {
             r=ptp_command(4);renew=ts_ticks();
-            if(r==TS_OK && (ack_result || ack_error || !ack_armed || ack_profile!=1 || ack_generation!=started_generation))r=TS_INVALID;
+            if(r==TS_OK && (ack_result || ack_error || !ack_armed || ack_restored ||
+                           ack_profile!=profile || ack_generation!=started_generation))r=TS_INVALID;
             if(r==TS_OK)ptp_renewals++;
         }
-        if(ptp_exchanges && ts_elapsed(ptp_last_tick)>91UL) {r=TS_SHORT;break;}
+        if(ts_elapsed(ptp_last_tick)>((ptp_exchanges||gm_syncs)?91UL:328UL)) {
+            strcpy(runtime_reason,"No fresh PTP progress; session stopped.");r=TS_SHORT;break;
+        }
     }
     if(!error && !recovery) {
         stopped=ptp_command(3);
-        ptp_stopped=stopped==TS_OK && !ack_result && !ack_error && ack_restored && !ack_armed;
+        ptp_stopped=stopped==TS_OK && !ack_result && !ack_error && ack_restored && !ack_armed &&
+                    ack_profile==profile && ack_generation==started_generation;
         if(!ptp_stopped && r==TS_OK)r=stopped==TS_OK?TS_INVALID:stopped;
     }
+    if(options.sync==SYNC_PHC_DOS && !bridge_set && r==TS_OK) {
+        strcpy(runtime_reason,"DOS clock was not set: no qualified, fresh civil-time capture.");r=TS_SHORT;
+    }
     return r;
+}
+/* Only DOS date/time services are used while holding staging. These invoke
+   CLOCK$, not console/filesystem services. The BDA rollover flag belongs to
+   DOS and is never consumed by our deadline timer. No direct RTC writes. */
+static void dos_date(pt_calendar *c) {
+    union REGS r;memset(&r,0,sizeof(r));r.h.ah=0x2A;int86(0x21,&r,&r);
+    c->year=r.x.cx;c->month=r.h.dh;c->day=r.h.dl;
+}
+static int dos_read(pt_time *t) {
+    union REGS r;pt_calendar c,d;unsigned retry;
+    for(retry=0;retry<3;retry++) {
+        dos_date(&c);memset(&r,0,sizeof(r));r.h.ah=0x2C;int86(0x21,&r,&r);
+        c.hour=r.h.ch;c.minute=r.h.cl;c.second=r.h.dh;c.centisecond=r.h.dl;dos_date(&d);
+        if(c.year==d.year&&c.month==d.month&&c.day==d.day)return pt_calendar_encode(&c,t);
+    }
+    return 0;
+}
+static int dos_write(const pt_time *t) {
+    union REGS r;pt_calendar c;int ok;
+    if(!pt_calendar_decode(t,&c))return 0;
+    /* Avoid the non-atomic date/time pair across a target midnight boundary. */
+    if(c.hour==23 && c.minute==59 && c.second>=58)return 0;
+    (void)ts_ticks();
+    memset(&r,0,sizeof(r));r.h.ah=0x2D;r.h.ch=(unsigned char)c.hour;r.h.cl=(unsigned char)c.minute;
+    r.h.dh=(unsigned char)c.second;r.h.dl=(unsigned char)c.centisecond;int86(0x21,&r,&r);ok=!r.h.al;
+    pt_timer_rebase(&timer,raw_ticks());
+    if(!ok)return 0;
+    memset(&r,0,sizeof(r));r.h.ah=0x2B;r.x.cx=c.year;r.h.dh=(unsigned char)c.month;
+    r.h.dl=(unsigned char)c.day;int86(0x21,&r,&r);ok=!r.h.al;
+    pt_timer_rebase(&timer,raw_ticks());return ok;
+}
+static int bridge_update(void) {
+    unsigned long sent,elapsed;pt_time target,current,verify;pt_calendar civil;
+    long difference;int r,large;char line[160];
+    if(ts_elapsed(ptp_last_tick)>9UL)return TS_OK;
+    sent=ts_ticks();r=ptp_command(8);elapsed=ts_elapsed(sent);
+    if(r!=TS_OK || ack_result || ack_error || ack_phase!=2 || ack_profile!=profile ||
+       !ack_armed || ack_restored || ack_generation!=started_generation || ack_data[29]!=127) {
+        strcpy(runtime_reason,"PHC capture capability/state unavailable. DOS clock unchanged by this capture.");return TS_INVALID;
+    }
+    if(runtime_reason[0])return TS_INVALID;
+    if(!pt_clock_target(ack_data,elapsed,&options,&target)) {
+        strcpy(runtime_reason,"PHC capture has invalid epoch, flags, timestamp, or excessive latency.");return TS_INVALID;
+    }
+    if(ts_elapsed(session_begin)>=(unsigned long)options.valid_seconds*182UL/10UL||
+       ts_elapsed(ptp_last_tick)>9UL||stable_samples<8)return TS_OK;
+    if(!dos_read(&current))return TS_INVALID;
+    elapsed=ts_elapsed(ack_received_tick);
+    if(elapsed>2UL || ts_elapsed(ptp_last_tick)>9UL ||
+       ts_elapsed(session_begin)>=(unsigned long)options.valid_seconds*182UL/10UL)return TS_INVALID;
+    if(!pt_time_advance(&target,elapsed*54925493UL))return TS_INVALID;
+    difference=pt_clock_difference(&target,&current,&large);
+    if(bridge_set && (large || difference <= -100L || difference>=100L)) {
+        strcpy(runtime_reason,"Clock discontinuity is at least 1 second during TRACK; restart explicitly to step.");return TS_INVALID;
+    }
+    bridge_last=ts_ticks();
+    if(bridge_set && difference>=-11L && difference<=11L)return TS_OK;
+    if(!pt_calendar_decode(&target,&civil))return TS_INVALID;
+    if(civil.hour==23 && civil.minute==59 && civil.second>=58)return TS_OK;
+    if(!dos_write(&target)||!dos_read(&verify)) {
+        strcpy(runtime_reason,"DOS date/time setter or readback failed; time may be partially updated.");return TS_INVALID;
+    }
+    difference=pt_clock_difference(&target,&verify,&large);
+    if(large||difference < -22L||difference>22L) {
+        strcpy(runtime_reason,"DOS date/time readback is outside the 220 ms tolerance.");return TS_INVALID;
+    }
+    bridge_set=1;bridge_updates++;
+    sprintf(line,"DOS set: %04u-%02u-%02u %02u:%02u:%02u.%02u (%s), RTC follows DOS kernel\r\n",
+        civil.year,civil.month,civil.day,civil.hour,civil.minute,civil.second,civil.centisecond,
+        options.dos_local?"fixed local offset":"UTC");bios_text(line);return TS_OK;
 }
 static void ptp_report(void) {
     unsigned i,j,index,start;unsigned char raw[12];char sec[16];unsigned long ns;
@@ -357,6 +528,11 @@ static void ptp_report(void) {
         ptp_stopped?"verified":"not verified",ptp_escaped?", ESC":"");
     if(!ptp_stopped && ptp_started)puts("Device lease expires within 15 seconds without renewal.");
     printf("Last ACK: result %d, phase %u, profile %u, error %lu, armed %u, restored %u\n",ack_result,ack_phase,ack_profile,ack_error,ack_armed,ack_restored);
+    if(runtime_reason[0])puts(runtime_reason);
+    if(options.role==2) {
+        printf("GM: %lu Follow_Up, %lu Delay_Resp, %lu timestamp errors.\n",gm_syncs,gm_responses,gm_errors);
+        puts("Free-running PHC only. No known epoch, UTC traceability, Announce or BMCA.");return;
+    }
     if(!ptp_exchanges)puts("No valid PTP exchanges observed.");
     puts("PTP_CSV,sync,delay_seq,offset_ns,path_delay_ns,rate_ppb,t1,t2,t3,t4");
     start=ptp_used==PTP_RECORDS?ptp_next:0;
@@ -370,7 +546,10 @@ static void ptp_report(void) {
         }
         puts("");
     }
-    puts("PTP disciplines the attached TimeStick hardware clock. DOS wall time is unchanged.");
+    if(options.sync==SYNC_PHC_DOS)
+        printf("PHC -> DOS: %lu clock writes, %s; DOS setters may update battery RTC.\n",bridge_updates,options.track?"30s tracking checks":"one startup step");
+    else puts("DOS/BIOS and battery RTC unchanged by PTP4D.");
+    printf("Host-servo commands acknowledged: %lu\n",host_commands);
 }
 static const char *result_name(int r) {
     switch (r) {
@@ -416,28 +595,26 @@ static int identify_card(void) {
 int main(int argc, char **argv) {
     unsigned i;
     int mode = -1, list = 0, diag = 0, enable = 0, wanted = -1, r = 0;
-    puts("PTP4D 0.4 - TimeStick hardware PTP for DOS");
-    for (i = 1; i < (unsigned)argc; i++) {
-        if (!stricmp(argv[i], "/HOST")) mode = 1;
-        else if (!stricmp(argv[i], "/CARD")) mode = 0;
-        else if (!stricmp(argv[i], "/LIST")) list = 1;
-        else if (!stricmp(argv[i], "/DIAG")) diag = 1;
-        else if (!stricmp(argv[i], "/CLOCK")) enable = 1;
-        else if (!stricmp(argv[i], "/PTP") && i+1<(unsigned)argc) {
-            char *end; unsigned long seconds;
-            i++;seconds=strtoul(argv[i],&end,10);
-            if(!argv[i][0] || *end || seconds>3600UL || (seconds && seconds<10UL))goto usage;
-            ptp_mode=1;ptp_seconds=(unsigned)seconds;
-        }
-        else if (!stricmp(argv[i], "/PORT") && i+1 < (unsigned)argc) {
-            i++;
-            if (strlen(argv[i]) != 1 || argv[i][0] < '1' || argv[i][0] > '4') goto usage;
-            wanted = argv[i][0] - '1';
-        } else goto usage;
-    }
-    if(ptp_mode && (enable || list || mode>=0))goto usage;
+    const char *option_error;
+    puts("PTP4D 0.5-dev - PTP for DOS");
+    r=pt_options_parse(argc,argv,&options,&option_error);
+    if(r==2){pt_help();return 0;}
+    if(!r){puts(option_error);return 1;}
+    r=0;mode=options.action==OPT_HOST?1:options.action==OPT_CARD?0:-1;
+    list=options.action==OPT_LIST;diag=options.diag;enable=options.action==OPT_CLOCK;
+    wanted=options.port;ptp_mode=options.action==OPT_PTP;ptp_seconds=options.seconds;
     if (!identify_card()) return 2;
-    if(ptp_mode)puts("PTP follower, domain 42. ESC stops. Hardware clock only; DOS time is unchanged.");
+    if(ptp_mode) {
+        printf("Mode %s; domain 42, 4 Hz; servo %s; direction %s. ESC stops.\n",
+            options.role==2?"GM (fixed peer)":"FOLLOWER",options.role==2?"none":pt_servo_name(options.servo),
+            options.sync==SYNC_PHC_DOS?"network -> PHC -> DOS":"hardware clock only");
+        if(options.role==2)puts("Free-running PHC: no civil epoch or UTC quality advertised.");
+        if(options.sync==SYNC_PHC_DOS) {
+            printf("Unix epoch, %s, TAI-UTC %d s, DOS-UTC %+d min, validity %u s.\n",
+                options.scale?"TAI":"UTC",options.tai_offset,options.zone_minutes,options.valid_seconds);
+            printf("DOS update %s; DOS setters may also update battery RTC.\n",options.track?"TRACK, 30s checks":"STEP once after acquisition");
+        }
+    }
     if (mode < 0 && !(ts_rd(TS_STATE) & 1)) {
         puts("Enable USB pass-through with PTP4D /HOST, then connect the TimeStick.");
         puts("This assigns all USB devices to the host; PTP4D /CARD restores card ownership.");
@@ -461,7 +638,7 @@ int main(int argc, char **argv) {
     if (matches != 1) { r = 5; goto finish; }
     error=ptp_mode?ptp_run():read_midi(enable);
     if(error!=TS_OK)r=4;
-    else { error=0; if(ptp_mode?!ptp_exchanges:sample_count<2)r=6; }
+    else { error=0; if(ptp_mode?(options.role==2?!gm_syncs:!ptp_exchanges):sample_count<2)r=6; }
 
 finish:
     /* No DOS file/console I/O while the redirector and card IRQ are disarmed. */
@@ -474,7 +651,7 @@ finish:
     else if (r == 3) puts("Cannot acquire or change USB/staging ownership. No clock read performed.");
     else if (r == 5) puts(matches ? "Multiple AX88279A devices. Select one with /PORT 1..4." :
                                   "No matching AX88279A found (0B95:1790, bcdDevice 0500).");
-    if (r == 4) printf("Clock probe failed: %s (%d).\n", result_name(error), error);
+    if (r == 4) printf("Timing operation failed: %s (%d).\n", result_name(error), error);
     if(ptp_mode) { ptp_report();return r; }
     for (i = 0; i < 2; i++) if (sample_valid[i])
         printf("Clock %u: %s.%09lu seconds\n", i+1, clocks[i], nanos[i]);
@@ -489,9 +666,4 @@ finish:
         puts("Raw hardware-clock time; epoch, timescale and synchronization are unverified.");
     }
     return r;
-usage:
-    puts("Usage: PTP4D [/LIST | /DIAG | /CLOCK | /PTP seconds] [/PORT 1..4] | /HOST | /CARD");
-    puts("Default: passive MIDI clock read. /CLOCK briefly enables the local counter.");
-    puts("/PTP 10..3600: timed follower; /PTP 0: continuous until ESC. Start peer first.");
-    return 1;
 }

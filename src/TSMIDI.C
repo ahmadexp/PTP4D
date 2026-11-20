@@ -70,23 +70,27 @@ int tm_endpoints(const unsigned char *d,unsigned len,unsigned *in_ep,unsigned *o
 static void le32(unsigned char *p,unsigned long v) {
     unsigned i; for(i=0;i<4;i++) p[i]=(unsigned char)(v>>(8*i));
 }
-static unsigned encode_command(unsigned long nonce,unsigned long seq,unsigned op,
-                        unsigned profile,unsigned extended,unsigned long value,
-                        const unsigned char mac[6],unsigned char out[76]) {
-    unsigned char raw[24], sysex[56]; unsigned crc,i,k,pos=0,n;
-    memset(raw,0,sizeof(raw)); le32(raw,nonce);le32(raw+4,seq);
-    raw[8]=(unsigned char)op;raw[9]=(unsigned char)profile;raw[10]=42;
-    raw[11]=(unsigned char)extended;le32(raw+12,value);memcpy(raw+16,mac,6);
-    crc=tm_crc(raw,22);raw[22]=(unsigned char)crc;raw[23]=(unsigned char)(crc>>8);
-    memcpy(sysex,"\360\175TSK",5);sysex[5]=3;sysex[6]=0x20;
-    for(i=0;i<24;i++){sysex[7+2*i]=raw[i]&127;sysex[8+2*i]=raw[i]>>7;}
-    sysex[55]=0xF7;
-    for(i=0;i<56;i+=3) {
-        n=56-i; if(n>3)n=3;
-        out[pos++]=(unsigned char)(i+n<56?4:4+n);
+/* Only validated wrappers below construct commands. */
+static unsigned tm_encode(const unsigned char *raw,unsigned size,unsigned char *out) {
+    unsigned char sysex[72];unsigned crc,i,k,pos=0,n,len=12+2*size;
+    crc=tm_crc(raw,size);memcpy(sysex,"\360\175TSK",5);sysex[5]=3;sysex[6]=0x20;
+    for(i=0;i<size;i++){sysex[7+2*i]=raw[i]&127;sysex[8+2*i]=raw[i]>>7;}
+    sysex[7+2*size]=crc&127;sysex[8+2*size]=(crc>>7)&1;
+    sysex[9+2*size]=(crc>>8)&127;sysex[10+2*size]=crc>>15;sysex[len-1]=0xF7;
+    for(i=0;i<len;i+=3) {
+        n=len-i;if(n>3)n=3;out[pos++]=(unsigned char)(i+n<len?4:4+n);
         for(k=0;k<3;k++)out[pos++]=k<n?sysex[i+k]:0;
     }
     return pos;
+}
+static unsigned encode_command(unsigned long nonce,unsigned long seq,unsigned op,
+                        unsigned profile,unsigned extended,unsigned long value,
+                        const unsigned char mac[6],unsigned char out[76]) {
+    unsigned char raw[22];
+    memset(raw,0,sizeof(raw)); le32(raw,nonce);le32(raw+4,seq);
+    raw[8]=(unsigned char)op;raw[9]=(unsigned char)profile;raw[10]=42;
+    raw[11]=(unsigned char)extended;le32(raw+12,value);memcpy(raw+16,mac,6);
+    return tm_encode(raw,22,out);
 }
 unsigned tm_command(unsigned long nonce,unsigned long seq,unsigned op,
                     unsigned profile,unsigned duration,const unsigned char mac[6],
@@ -102,8 +106,8 @@ unsigned tm_ptp_command(unsigned long nonce,unsigned long seq,unsigned op,
                         unsigned char out[76],const unsigned char mac[6]) {
     unsigned extended;
     unsigned long value=0;
-    if(!nonce || !seq || (profile!=1 && profile!=2) ||
-       (op!=1 && op!=2 && op!=3 && op!=4 && op!=5))return 0;
+    if(!nonce || !seq || (profile!=1 && profile!=2 && profile!=3) ||
+       (op!=1 && op!=2 && op!=3 && op!=4 && op!=5 && op!=6 && op!=8))return 0;
     if(op==4?!generation:generation!=0)return 0;
     extended=op==1 || op==2 || op==4;
     if(op==2)value=15;
@@ -138,4 +142,39 @@ int tm_ptp_sample(const unsigned char raw[94],double *offset,double *delay,long 
        *delay>50000000.0 || correction < -100000.0 || correction>100000.0 ||
        !ts_le32(raw+90))return 0;
     *ppb=(long)correction;return 1;
+}
+
+unsigned tm_host_command(unsigned long nonce,unsigned long seq,long ppb,
+                         unsigned long generation,unsigned long token,
+                         unsigned char out[96],const unsigned char mac[6]) {
+    unsigned char raw[30];
+    if(!nonce||!seq||!generation||ppb < -100000L||ppb>100000L)return 0;
+    memset(raw,0,sizeof(raw));le32(raw,nonce);le32(raw+4,seq);
+    raw[8]=7;raw[9]=3;raw[10]=42;le32(raw+12,(unsigned long)ppb);
+    memcpy(raw+16,mac,6);le32(raw+22,generation);le32(raw+26,token);
+    return tm_encode(raw,30,out);
+}
+int tm_ack_matches(const tm_parser *p,unsigned long nonce,unsigned long seq,
+                   unsigned op,const unsigned char mac[6]) {
+    return p->version==3 && p->kind==0x21 && p->len==(op==8?64:op==7?44:32) &&
+        ts_le32(p->raw)==nonce && ts_le32(p->raw+4)==seq && p->raw[8]==op &&
+        !memcmp(p->raw+22,mac,6) && p->raw[28]==42;
+}
+/* Explicit two's-complement handling avoids implementation-defined casts. */
+static long signed32(const unsigned char *p) {
+    unsigned long u=ts_le32(p);
+    return u&0x80000000UL?-(long)(0xFFFFFFFFUL-u)-1L:(long)u;
+}
+int tm_host_ack(const unsigned char *a,unsigned long generation,long requested) {
+    unsigned long addend,expected,mag,change;
+    if(requested < -100000L || requested>100000L)return 0;
+    if(a[9]||a[10]!=2||a[11]!=3||ts_le32(a+12)||ts_le32(a+16)!=generation||
+       a[29]!=95||a[30]||a[31]!=1||signed32(a+32)!=requested||ts_le32(a+40)>2000000000UL)return 0;
+    /* floor(2^31 * abs(ppb) / 1e9), using 32-bit products only. */
+    mag=(unsigned long)(requested<0?-requested:requested);
+    /* 0.147483648 * mag; both products stay below 2^32. */
+    change=2*mag+(mag/10000UL*147483648UL+
+                  (mag%10000UL)*14748UL+(mag%10000UL)*3648UL/10000UL)/100000UL;
+    expected=requested<0?0x80000000UL-change:0x80000000UL+change;
+    addend=ts_le32(a+36);return addend==expected;
 }

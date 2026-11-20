@@ -1,0 +1,1 @@
+int bioskey(int command);

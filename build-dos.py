@@ -18,10 +18,30 @@ with tempfile.TemporaryDirectory(prefix='ptp4d-build-') as tmp:
     stage = pathlib.Path(tmp)
     shutil.copytree(compiler, stage / 'BCC')
     shutil.copytree(root / 'src', stage / 'SRC')
+    shutil.copy2(root / 'tests/TESTDOS.H', stage / 'SRC/TESTDOS.H')
+    for name in ('servo', 'clock', 'options', 'midi'):
+        short = {'options': 'OPTS'}.get(name, name.upper())
+        shutil.copy2(root / 'tests' / f'test_{name}.c', stage / 'SRC' / f'TST{short}.C')
+    (stage / 'SRC' / 'CHECK.BAT').write_text("""@echo off
+BCC -mh -O -w -eSVTEST.EXE TSTSERVO.C SERVO.C > SVBUILD.LOG
+SVTEST > SERVO.LOG
+if errorlevel 1 echo FAILED >> SERVO.LOG
+BCC -mh -O -w -eCKTEST.EXE TSTCLOCK.C CLOCK.C > CKBUILD.LOG
+CKTEST > CLOCK.LOG
+if errorlevel 1 echo FAILED >> CLOCK.LOG
+BCC -mh -O -w -eOPTEST.EXE TSTOPTS.C OPTIONS.C > OPBUILD.LOG
+OPTEST > OPTIONS.LOG
+if errorlevel 1 echo FAILED >> OPTIONS.LOG
+BCC -mh -O -w -eMDTEST.EXE TSTMIDI.C TSWIRE.C TSMIDI.C > MDBUILD.LOG
+MDTEST > MIDI.LOG
+if errorlevel 1 echo FAILED >> MIDI.LOG
+""", newline='\r\n')
     conf = stage / 'dosbox.conf'
     conf.write_text('''[sdl]
 output=surface
 [cpu]
+cputype=486
+fpu=false
 cycles=max
 [mixer]
 nosound=true
@@ -36,15 +56,20 @@ cd \\SRC
 call BUILD.BAT
 PTP4D /? > HELP.LOG
 PTP4D > PROBE.LOG
+PTP4D /MODE GM > GMBLOCK.LOG
+PTP4D /PTP 10 /SERVO KALMAN > SERPROBE.LOG
+call CHECK.BAT
 exit
 ''')
     env = os.environ.copy()
     env.update(SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy')
     result = subprocess.run([exe, '-fastlaunch', '-silent', '-nogui', '-conf', str(conf)],
                             cwd=stage, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            timeout=120)
+                            timeout=300)
     dest = root / 'build'; dest.mkdir(exist_ok=True)
-    for name in ['BUILD.LOG','HELP.LOG','PROBE.LOG','PTP4D.EXE']:
+    for name in ['BUILD.LOG','HELP.LOG','PROBE.LOG','PTP4D.EXE','GMBLOCK.LOG','SERPROBE.LOG',
+                 'SVBUILD.LOG','CKBUILD.LOG','OPBUILD.LOG','MDBUILD.LOG',
+                 'SERVO.LOG','CLOCK.LOG','OPTIONS.LOG','MIDI.LOG']:
         src = stage / 'SRC' / name
         if src.exists(): shutil.copy2(src, dest / name)
     if not (stage / 'SRC/PTP4D.EXE').exists():
@@ -57,4 +82,13 @@ exit
     probe_log=(dest/'PROBE.LOG').read_text(errors='replace')
     if 'Usage: PTP4D' not in help_log or 'PICOCARD resident driver is not loaded.' not in probe_log:
         raise SystemExit('DOS smoke check failed')
+    for name in ('SERVO', 'CLOCK', 'OPTIONS', 'MIDI'):
+        log = (dest / f'{name}.LOG').read_text(errors='replace')
+        if 'PASS' not in log or 'Assertion failed' in log or 'FAILED' in log:
+            raise SystemExit(f'DOS no-FPU {name} test failed: {log}')
+        print(f'DOS 486, FPU disabled: {name} passed')
+    if 'PICOCARD resident driver is not loaded.' not in (dest / 'SERPROBE.LOG').read_text():
+        raise SystemExit('Advanced-servo CLI probe failed')
+    if 'DOS2PHC unavailable' not in (dest / 'GMBLOCK.LOG').read_text():
+        raise SystemExit('Unsupported grandmaster mode did not fail before hardware access')
     print(f'Built {dest / "PTP4D.EXE"}')

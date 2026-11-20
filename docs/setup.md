@@ -55,3 +55,14 @@ Logs are written under the configured `dos_log_dir` and `peer_dir`. No passwords
 The verified arrangement connects TimeStick directly to PicoPCMCIA's USB-C breakout. The programming computer must be disconnected from that data path while Pico is the USB host.
 
 A readable microSD is required for the tested card firmware's startup. Firmware v0.22 and the matching PICOCARD driver must already be installed. PTP4D does not flash either device. Pico's RP2350 can be programmed with the official Raspberry Pi `picotool`; entering BOOTSEL and safely stopping the resident driver are separate setup steps.
+
+## Development modes and shared hardware
+
+The commands above describe the existing hardware-only follower pair. The
+new source offers [runtime servos and clock direction](clock-modes.md). The
+host helpers continue to launch the compatible PI/default direction; advanced
+switches are entered directly on DOS. The free-running peer supplied here has
+no independently verified UTC epoch and is not automatically eligible for
+PHC2DOS. No firmware or hardware ownership change is performed by the build or
+portable tests. Keep live tests deferred while the Pico or its SD is owned by
+storage-transfer work, including saved SWD state.

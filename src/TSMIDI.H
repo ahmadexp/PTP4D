@@ -17,4 +17,10 @@ unsigned tm_ptp_command(unsigned long nonce, unsigned long seq, unsigned op,
                         unsigned char out[76], const unsigned char mac[6]);
 double tm_signed(const unsigned char *p, unsigned bytes);
 int tm_ptp_sample(const unsigned char raw[94], double *offset, double *delay, long *ppb);
+unsigned tm_host_command(unsigned long nonce,unsigned long seq,long ppb,
+                         unsigned long generation,unsigned long token,
+                         unsigned char out[96],const unsigned char mac[6]);
+int tm_ack_matches(const tm_parser *p,unsigned long nonce,unsigned long seq,
+                   unsigned op,const unsigned char mac[6]);
+int tm_host_ack(const unsigned char *ack,unsigned long generation,long requested);
 #endif
