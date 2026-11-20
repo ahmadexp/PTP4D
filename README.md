@@ -8,6 +8,13 @@
 
 **Development source: 0.5-dev.** Runtime servo selection, explicit follower/GM roles, and guarded PHC-to-DOS time copying are implemented and locally tested. The download and `bin/PTP4D.EXE` are still the hardware-tested 0.4 release. [New switches and clock behavior](docs/clock-modes.md) | [Servo inventory and protocol limits](docs/servo-inventory.md). DOS-derived grandmaster time is unavailable with the inspected firmware and is rejected before hardware access.
 
+The development host controller also supports **macOS CoreMIDI** alongside Linux
+ALSA, including device listing and a receive-only check. Mac enumeration, passive
+TimeStick telemetry, and virtual MIDI input/output have been tested. Active PTP
+and the new servo trials remain deferred until SD transfers finish.
+[Mac setup and servo trial procedure](docs/setup.md) |
+[CoreMIDI validation](docs/validation/coremidi-local.md).
+
 The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. In that original 0.4 configuration, the DOS system clock is unchanged.
 
 ![PTP4D running on the IBM PC110's built-in display](docs/photos/pc110-running-ptp4d.png)
@@ -111,7 +118,7 @@ they have no new hardware accuracy claim.
 
 ## Start both ends from a modern host
 
-See [setup instructions](docs/setup.md) for the standalone Linux grandmaster and the optional pair controller.
+See [setup instructions](docs/setup.md) for the standalone Linux/macOS grandmaster and the optional Linux SSH/COMrade pair controller.
 
 With SSH access and COMrade already configured:
 
@@ -166,11 +173,11 @@ Portable protocol tests run on a modern host:
 python3 tools/test.py
 ```
 
-These cover USB mailbox handling, CRC and MIDI framing, descriptor bounds, signed 64-bit Q17 decoding, timestamp validation, lease-generation binding, command restrictions, every host servo, civil-time conversion, option conflicts, and fake-device session faults. The Borland build also runs controller/calendar/options/MIDI tests with DOSBox-X FPU emulation disabled. They do not emulate the PCMCIA bus or prove hardware accuracy. GitHub Actions runs the portable tests; the proprietary DOS compiler is not needed for CI.
+These cover USB mailbox handling, CRC and MIDI framing, descriptor bounds, signed 64-bit Q17 decoding, timestamp validation, lease-generation binding, command restrictions, every host servo, civil-time conversion, option conflicts, and fake-device session faults. Host tests cover device selection, packet layouts, passive mode, disconnection, and the grandmaster lifecycle. On macOS they also exercise real CoreMIDI input/output through temporary virtual endpoints, without sending to USB hardware. The Borland build also runs controller/calendar/options/MIDI tests with DOSBox-X FPU emulation disabled. They do not emulate the PCMCIA bus or prove hardware accuracy. GitHub Actions is configured for Linux and macOS; the proprietary DOS compiler is not needed for CI.
 
 ## Scope and recovery
 
-The current implementation is specific to the tested PicoPCMCIA and TimeStick MIDI protocols. It is not a generic DOS packet-driver PTP stack. DOS time changes only with the explicit `PHC2DOS` options described above. Linux system time is unchanged.
+The current implementation is specific to the tested PicoPCMCIA and TimeStick MIDI protocols. It is not a generic DOS packet-driver PTP stack. DOS time changes only with the explicit `PHC2DOS` options described above. Linux and macOS system time are unchanged.
 
 PTP4D temporarily disarms PICOCARD and stops SD/CD prefetch while it owns shared USB staging. BIOS display output remains available; normal card services resume after a clean stop. Firmware leases expire if a controller disappears. A failed USB recovery leaves PICOCARD disarmed and requires a DOS reboot. Read [protocol and recovery notes](docs/protocol.md) before changing the low-level transport.
 

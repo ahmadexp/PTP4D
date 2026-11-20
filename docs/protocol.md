@@ -24,7 +24,7 @@ The compatible default chooses firmware profile 1, the PI follower. New host con
 
 The PI controller runs inside TimeStick firmware. Hardware timestamps yield the offset and path-delay measurement; the firmware applies bounded frequency corrections with anti-windup. In profile 1, PTP4D observes the acknowledged correction. In profile 3, the firmware disables its network PI controller and DOS supplies bounded op 7 corrections. The two controllers never run together.
 
-PTP sessions explicitly negotiate renewable operation with a 15-second lease. DOS renews roughly every four seconds, and Linux every five. Renewals bind to the active generation. STOP must acknowledge an unarmed session and restored nominal frequency/buffers. A missing renewal cannot revive an expired generation. A stale follower exchange stream terminates the DOS run.
+PTP sessions explicitly negotiate renewable operation with a 15-second lease. DOS renews roughly every four seconds, and the Linux/macOS peer every five. Renewals bind to the active generation. STOP must acknowledge an unarmed session and restored nominal frequency/buffers. A missing renewal cannot revive an expired generation. A stale follower exchange stream terminates the DOS run.
 
 ## Measurements
 
