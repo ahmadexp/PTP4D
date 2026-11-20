@@ -8,9 +8,9 @@
 
 The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. The DOS system clock is unchanged.
 
-![PTP4D running on the IBM PC110's built-in display](docs/photos/pc110-running-ptp4d.png)
+![PTP4D AUTO_PI results on the IBM PC110's built-in display](docs/photos/pc110-auto-pi-servo.jpg)
 
-*PTP4D on the PC110's own display during convergence, showing the measured offset, path delay, and frequency correction.*
+*A one-minute AUTO_PI trial from the development build, photographed on the physical PC110. The display shows reported offset, path delay, and frequency correction. [Full-size photo](docs/photos/pc110-auto-pi-servo.jpg).*
 
 ## What works
 
