@@ -118,6 +118,10 @@ static void reply(void) {
     if(op==7 && fault==16)a[22]^=1;
     if(op==7 && fault==17)a[4]^=1;
     if(op==2 && fault==19)return;
+    /* A new measurement may arrive while waiting for a correction ACK. */
+    if(fault==22 && op==7) {
+        ticks+=5;elapsed_ticks+=5;last_exchange=elapsed_ticks;sample();
+    }
     enqueue(a,len,3,0x21);
     if(op==7 && fault==15)queue[queued-5]^=1;
     if(op==8 && fault==18){ticks+=4;elapsed_ticks+=4;}
@@ -135,21 +139,32 @@ int ts_bulk(unsigned port,unsigned gen,unsigned ep,unsigned len,unsigned char *d
     }
     assert(ep==0x84);
     if(read_at==queued) {
+        /* Real USB IN waits for data. An unnecessary read after a complete
+           measurement can block until the next exchange invalidates its token. */
+        if((fault==21||fault==22) && armed) {
+            ticks+=5;elapsed_ticks+=5;last_exchange=elapsed_ticks;sample();
+        } else {
         ticks=(ticks+1)%0x1800B0UL;elapsed_ticks++;
         if(armed && fault!=13 && !(fault==14&&elapsed_ticks>200) && elapsed_ticks-last_exchange>=5){last_exchange=elapsed_ticks;sample();}
+        }
     }
     n=queued-read_at;if(n>len)n=len;memcpy(data,queue+read_at,n);read_at+=n;*actual=n;return TS_OK;
 }
 int main(int argc,char **argv) {
     int r;assert(argc==4);fault=atoi(argv[1]);options.servo=atoi(argv[2]);options.role=atoi(argv[3]);
     options.sync=(fault>=6 || fault==0)?SYNC_PHC_DOS:SYNC_NONE;
+    if(fault>=21)options.sync=SYNC_NONE;
     if(options.role==2)options.sync=SYNC_NONE;
     options.valid_seconds=fault==11?10:120;options.track=1;ptp_mode=1;ptp_seconds=75;
     selected=0;selected_gen=1;system_origin.seconds=1790000000UL;system_origin.nanoseconds=0;
     r=ptp_run();
-    if(fault==0 || fault==10 || fault==11) {
+    if(fault==0 || fault==10 || fault==11 || fault==21 || fault==22) {
         assert(r==TS_OK&&starts==1&&stops==1&&ptp_stopped&&commands>(fault==11?1u:10u));
-        if(options.role==1){assert(bridge_updates>=1&&writes>=2);if(options.servo)assert(host_commands>(fault==11?20UL:100UL));}
+        if(options.role==1){
+            if(fault>=21)assert(bridge_updates==0&&writes==0);
+            else assert(bridge_updates>=1&&writes>=2);
+            if(options.servo)assert(host_commands>(fault==11?20UL:100UL));
+        }
         else assert(gm_syncs>100&&writes==0);
         if(fault==10)assert(bridge_updates>=3);
         if(fault==11)assert(elapsed_ticks<230);

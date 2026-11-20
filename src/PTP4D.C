@@ -257,6 +257,9 @@ static int receive(unsigned op,unsigned long ticks_limit) {
         }
         /* Consume the whole USB packet, retaining any following partial frame. */
         if(found)return TS_OK;
+        /* Act on the latest completed host sample before another IN request
+           can wait for a newer exchange and make its correction token stale. */
+        if(!op && ptp_mode && host_pending)return TS_OK;
         if(!op && !ptp_mode && sample_count>=2) return TS_OK;
     } while(ts_elapsed(start)<ticks_limit);
     return op?TS_SHORT:TS_OK;
@@ -382,7 +385,13 @@ static int host_adjust(void) {
     r=send_command(n,7);
     if(r==TS_OK && !tm_host_ack(ack_data,started_generation,requested))r=TS_INVALID;
     if(r==TS_OK)host_commands++;
-    else strcpy(runtime_reason,"Host frequency adjustment was not acknowledged; stopping without fallback.");
+    else {
+        strcpy(runtime_reason,"Host frequency adjustment was not acknowledged; stopping without fallback.");
+        sprintf(diagnostics[2],"Host ACK: transport %d, result %d, phase %u, profile %u, error %lu, generation %lu",
+            r,ack_result,ack_phase,ack_profile,ack_error,ack_generation);
+        sprintf(diagnostics[3],"Host request %ld ppb; ACK ppb %.0f, addend %08lX, delay %lu ns, caps %u, armed %u, restored %u",
+            requested,tm_signed(ack_data+32,4),ts_le32(ack_data+36),ts_le32(ack_data+40),ack_data[29],ack_armed,ack_restored);
+    }
     return r;
 }
 static int ptp_run(void) {
@@ -416,7 +425,8 @@ static int ptp_run(void) {
                    ack_restored || ack_generation!=started_generation))r=TS_INVALID;
     begin=renew=session_begin=ts_ticks();ptp_last_tick=begin;
     while(r==TS_OK && (!ptp_seconds || ts_elapsed(begin)<(unsigned long)ptp_seconds*182UL/10UL)) {
-        r=receive(0,1UL);
+        /* Telemetry can also arrive while a command ACK is being received. */
+        if(!host_pending)r=receive(0,1UL);
         if(r!=TS_OK)break;
         if(runtime_reason[0]){r=TS_INVALID;break;}
         if(bioskey(1)) {key=(unsigned)bioskey(0);if((key&255)==27){ptp_escaped=1;break;}}

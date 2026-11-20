@@ -1,0 +1,1937 @@
+{
+  "records": 128,
+  "last_window_records": 40,
+  "last_window_mean_offset_ns": 49.85,
+  "last_window_max_abs_offset_ns": 89.5,
+  "last_window_stddev_offset_ns": 18.183852727076296,
+  "last_path_delay_ns": 2747.0,
+  "grandmaster_timestamp_errors": 0,
+  "t1_matches": 128,
+  "t4_matches": 128,
+  "arithmetic_matches": 128,
+  "dos_stop_verified": true,
+  "console_overflow": false,
+  "dos_prompt_returned": true,
+  "rows": [
+    {
+      "sync": 120,
+      "delay_sequence": 16493,
+      "offset_ns": 1696.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -226,
+      "t_ns": [
+        29773994115,
+        29773998557,
+        29775395900,
+        29775396950
+      ],
+      "recomputed_offset_ns": 1696.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 121,
+      "delay_sequence": 16494,
+      "offset_ns": 1629.5,
+      "delay_ns": 2752.5,
+      "rate_ppb": -223,
+      "t_ns": [
+        30024361245,
+        30024365627,
+        30025894707,
+        30025895830
+      ],
+      "recomputed_offset_ns": 1629.5,
+      "recomputed_delay_ns": 2752.5
+    },
+    {
+      "sync": 122,
+      "delay_sequence": 16495,
+      "offset_ns": 1589.5,
+      "delay_ns": 2763.5,
+      "rate_ppb": -210,
+      "t_ns": [
+        30274447184,
+        30274451537,
+        30276030516,
+        30276031690
+      ],
+      "recomputed_offset_ns": 1589.5,
+      "recomputed_delay_ns": 2763.5
+    },
+    {
+      "sync": 123,
+      "delay_sequence": 16496,
+      "offset_ns": 1534.5,
+      "delay_ns": 2772.5,
+      "rate_ppb": -210,
+      "t_ns": [
+        30524550250,
+        30524554557,
+        30525988882,
+        30525990120
+      ],
+      "recomputed_offset_ns": 1534.5,
+      "recomputed_delay_ns": 2772.5
+    },
+    {
+      "sync": 124,
+      "delay_sequence": 16497,
+      "offset_ns": 1475.5,
+      "delay_ns": 2767.5,
+      "rate_ppb": -202,
+      "t_ns": [
+        30774792144,
+        30774796387,
+        30776167468,
+        30776168760
+      ],
+      "recomputed_offset_ns": 1475.5,
+      "recomputed_delay_ns": 2767.5
+    },
+    {
+      "sync": 125,
+      "delay_sequence": 16498,
+      "offset_ns": 1423.0,
+      "delay_ns": 2758.0,
+      "rate_ppb": -191,
+      "t_ns": [
+        31025091946,
+        31025096127,
+        31026644305,
+        31026645640
+      ],
+      "recomputed_offset_ns": 1423.0,
+      "recomputed_delay_ns": 2758.0
+    },
+    {
+      "sync": 126,
+      "delay_sequence": 16499,
+      "offset_ns": 1373.0,
+      "delay_ns": 2758.0,
+      "rate_ppb": -183,
+      "t_ns": [
+        31275098986,
+        31275103117,
+        31276536735,
+        31276538120
+      ],
+      "recomputed_offset_ns": 1373.0,
+      "recomputed_delay_ns": 2758.0
+    },
+    {
+      "sync": 127,
+      "delay_sequence": 16500,
+      "offset_ns": 1341.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -175,
+      "t_ns": [
+        31525225219,
+        31525229307,
+        31526800964,
+        31526802370
+      ],
+      "recomputed_offset_ns": 1341.0,
+      "recomputed_delay_ns": 2747.0
+    },
+    {
+      "sync": 128,
+      "delay_sequence": 16501,
+      "offset_ns": 1301.5,
+      "delay_ns": 2768.5,
+      "rate_ppb": -175,
+      "t_ns": [
+        31775429047,
+        31775433117,
+        31776947653,
+        31776949120
+      ],
+      "recomputed_offset_ns": 1301.5,
+      "recomputed_delay_ns": 2768.5
+    },
+    {
+      "sync": 129,
+      "delay_sequence": 16502,
+      "offset_ns": 1253.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -172,
+      "t_ns": [
+        32025748048,
+        32025752047,
+        32027157687,
+        32027159180
+      ],
+      "recomputed_offset_ns": 1253.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 130,
+      "delay_sequence": 16503,
+      "offset_ns": 1218.0,
+      "delay_ns": 2768.0,
+      "rate_ppb": -163,
+      "t_ns": [
+        32276064131,
+        32276068117,
+        32277633500,
+        32277635050
+      ],
+      "recomputed_offset_ns": 1218.0,
+      "recomputed_delay_ns": 2768.0
+    },
+    {
+      "sync": 131,
+      "delay_sequence": 16504,
+      "offset_ns": 1169.5,
+      "delay_ns": 2751.5,
+      "rate_ppb": -161,
+      "t_ns": [
+        32526258666,
+        32526262587,
+        32527643648,
+        32527645230
+      ],
+      "recomputed_offset_ns": 1169.5,
+      "recomputed_delay_ns": 2751.5
+    },
+    {
+      "sync": 132,
+      "delay_sequence": 16505,
+      "offset_ns": 1138.5,
+      "delay_ns": 2772.5,
+      "rate_ppb": -152,
+      "t_ns": [
+        32776602986,
+        32776606897,
+        32778180466,
+        32778182100
+      ],
+      "recomputed_offset_ns": 1138.5,
+      "recomputed_delay_ns": 2772.5
+    },
+    {
+      "sync": 133,
+      "delay_sequence": 16506,
+      "offset_ns": 1090.0,
+      "delay_ns": 2750.0,
+      "rate_ppb": -150,
+      "t_ns": [
+        33026931997,
+        33026935837,
+        33028378980,
+        33028380640
+      ],
+      "recomputed_offset_ns": 1090.0,
+      "recomputed_delay_ns": 2750.0
+    },
+    {
+      "sync": 134,
+      "delay_sequence": 16507,
+      "offset_ns": 1063.0,
+      "delay_ns": 2765.0,
+      "rate_ppb": -140,
+      "t_ns": [
+        33277121539,
+        33277125367,
+        33278693958,
+        33278695660
+      ],
+      "recomputed_offset_ns": 1063.0,
+      "recomputed_delay_ns": 2765.0
+    },
+    {
+      "sync": 135,
+      "delay_sequence": 16508,
+      "offset_ns": 1021.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -139,
+      "t_ns": [
+        33527175735,
+        33527179507,
+        33528588241,
+        33528589970
+      ],
+      "recomputed_offset_ns": 1021.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 136,
+      "delay_sequence": 16509,
+      "offset_ns": 983.5,
+      "delay_ns": 2756.5,
+      "rate_ppb": -132,
+      "t_ns": [
+        33777367197,
+        33777370937,
+        33778849177,
+        33778850950
+      ],
+      "recomputed_offset_ns": 983.5,
+      "recomputed_delay_ns": 2756.5
+    },
+    {
+      "sync": 137,
+      "delay_sequence": 16510,
+      "offset_ns": 960.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -125,
+      "t_ns": [
+        34027520131,
+        34027523837,
+        34029010274,
+        34029012060
+      ],
+      "recomputed_offset_ns": 960.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 138,
+      "delay_sequence": 16511,
+      "offset_ns": 924.5,
+      "delay_ns": 2748.5,
+      "rate_ppb": -125,
+      "t_ns": [
+        34277874794,
+        34277878467,
+        34279431696,
+        34279433520
+      ],
+      "recomputed_offset_ns": 924.5,
+      "recomputed_delay_ns": 2748.5
+    },
+    {
+      "sync": 139,
+      "delay_sequence": 16512,
+      "offset_ns": 908.0,
+      "delay_ns": 2764.0,
+      "rate_ppb": -119,
+      "t_ns": [
+        34527939715,
+        34527943387,
+        34529489164,
+        34529491020
+      ],
+      "recomputed_offset_ns": 908.0,
+      "recomputed_delay_ns": 2764.0
+    },
+    {
+      "sync": 140,
+      "delay_sequence": 16513,
+      "offset_ns": 877.0,
+      "delay_ns": 2762.0,
+      "rate_ppb": -122,
+      "t_ns": [
+        34778212688,
+        34778216327,
+        34779666875,
+        34779668760
+      ],
+      "recomputed_offset_ns": 877.0,
+      "recomputed_delay_ns": 2762.0
+    },
+    {
+      "sync": 141,
+      "delay_sequence": 16514,
+      "offset_ns": 844.5,
+      "delay_ns": 2768.5,
+      "rate_ppb": -117,
+      "t_ns": [
+        35028384234,
+        35028387847,
+        35029900496,
+        35029902420
+      ],
+      "recomputed_offset_ns": 844.5,
+      "recomputed_delay_ns": 2768.5
+    },
+    {
+      "sync": 142,
+      "delay_sequence": 16515,
+      "offset_ns": 799.5,
+      "delay_ns": 2752.5,
+      "rate_ppb": -112,
+      "t_ns": [
+        35278507575,
+        35278511127,
+        35279875557,
+        35279877510
+      ],
+      "recomputed_offset_ns": 799.5,
+      "recomputed_delay_ns": 2752.5
+    },
+    {
+      "sync": 143,
+      "delay_sequence": 16516,
+      "offset_ns": 784.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -99,
+      "t_ns": [
+        35528799952,
+        35528803487,
+        35530164474,
+        35530166440
+      ],
+      "recomputed_offset_ns": 784.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 144,
+      "delay_sequence": 16517,
+      "offset_ns": 758.0,
+      "delay_ns": 2750.0,
+      "rate_ppb": -102,
+      "t_ns": [
+        35778830109,
+        35778833617,
+        35780358758,
+        35780360750
+      ],
+      "recomputed_offset_ns": 758.0,
+      "recomputed_delay_ns": 2750.0
+    },
+    {
+      "sync": 145,
+      "delay_sequence": 16518,
+      "offset_ns": 734.5,
+      "delay_ns": 2752.5,
+      "rate_ppb": -98,
+      "t_ns": [
+        36028973520,
+        36028977007,
+        36030542562,
+        36030544580
+      ],
+      "recomputed_offset_ns": 734.5,
+      "recomputed_delay_ns": 2752.5
+    },
+    {
+      "sync": 146,
+      "delay_sequence": 16519,
+      "offset_ns": 722.0,
+      "delay_ns": 2769.0,
+      "rate_ppb": -95,
+      "t_ns": [
+        36279275626,
+        36279279117,
+        36280763393,
+        36280765440
+      ],
+      "recomputed_offset_ns": 722.0,
+      "recomputed_delay_ns": 2769.0
+    },
+    {
+      "sync": 147,
+      "delay_sequence": 16520,
+      "offset_ns": 700.0,
+      "delay_ns": 2767.0,
+      "rate_ppb": -98,
+      "t_ns": [
+        36529552720,
+        36529556187,
+        36531119853,
+        36531121920
+      ],
+      "recomputed_offset_ns": 700.0,
+      "recomputed_delay_ns": 2767.0
+    },
+    {
+      "sync": 148,
+      "delay_sequence": 16521,
+      "offset_ns": 668.5,
+      "delay_ns": 2767.5,
+      "rate_ppb": -96,
+      "t_ns": [
+        36779844151,
+        36779847587,
+        36781320681,
+        36781322780
+      ],
+      "recomputed_offset_ns": 668.5,
+      "recomputed_delay_ns": 2767.5
+    },
+    {
+      "sync": 149,
+      "delay_sequence": 16522,
+      "offset_ns": 634.5,
+      "delay_ns": 2758.5,
+      "rate_ppb": -88,
+      "t_ns": [
+        37029913834,
+        37029917227,
+        37031500706,
+        37031502830
+      ],
+      "recomputed_offset_ns": 634.5,
+      "recomputed_delay_ns": 2758.5
+    },
+    {
+      "sync": 150,
+      "delay_sequence": 16523,
+      "offset_ns": 625.5,
+      "delay_ns": 2744.5,
+      "rate_ppb": -79,
+      "t_ns": [
+        37279960477,
+        37279963847,
+        37281391271,
+        37281393390
+      ],
+      "recomputed_offset_ns": 625.5,
+      "recomputed_delay_ns": 2744.5
+    },
+    {
+      "sync": 151,
+      "delay_sequence": 16524,
+      "offset_ns": 599.5,
+      "delay_ns": 2748.5,
+      "rate_ppb": -83,
+      "t_ns": [
+        37530073219,
+        37530076567,
+        37531521171,
+        37531523320
+      ],
+      "recomputed_offset_ns": 599.5,
+      "recomputed_delay_ns": 2748.5
+    },
+    {
+      "sync": 152,
+      "delay_sequence": 16525,
+      "offset_ns": 577.0,
+      "delay_ns": 2753.0,
+      "rate_ppb": -77,
+      "t_ns": [
+        37780185527,
+        37780188857,
+        37781684454,
+        37781686630
+      ],
+      "recomputed_offset_ns": 577.0,
+      "recomputed_delay_ns": 2753.0
+    },
+    {
+      "sync": 153,
+      "delay_sequence": 16526,
+      "offset_ns": 568.0,
+      "delay_ns": 2772.0,
+      "rate_ppb": -73,
+      "t_ns": [
+        38030502557,
+        38030505897,
+        38032050616,
+        38032052820
+      ],
+      "recomputed_offset_ns": 568.0,
+      "recomputed_delay_ns": 2772.0
+    },
+    {
+      "sync": 154,
+      "delay_sequence": 16527,
+      "offset_ns": 541.0,
+      "delay_ns": 2752.0,
+      "rate_ppb": -76,
+      "t_ns": [
+        38280776784,
+        38280780077,
+        38282312689,
+        38282314900
+      ],
+      "recomputed_offset_ns": 541.0,
+      "recomputed_delay_ns": 2752.0
+    },
+    {
+      "sync": 155,
+      "delay_sequence": 16528,
+      "offset_ns": 521.0,
+      "delay_ns": 2759.0,
+      "rate_ppb": -69,
+      "t_ns": [
+        38530840887,
+        38530844167,
+        38532245812,
+        38532248050
+      ],
+      "recomputed_offset_ns": 521.0,
+      "recomputed_delay_ns": 2759.0
+    },
+    {
+      "sync": 156,
+      "delay_sequence": 16529,
+      "offset_ns": 516.0,
+      "delay_ns": 2763.0,
+      "rate_ppb": -65,
+      "t_ns": [
+        38781172048,
+        38781175327,
+        38782536633,
+        38782538880
+      ],
+      "recomputed_offset_ns": 516.0,
+      "recomputed_delay_ns": 2763.0
+    },
+    {
+      "sync": 157,
+      "delay_sequence": 16530,
+      "offset_ns": 498.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -69,
+      "t_ns": [
+        39031400042,
+        39031403287,
+        39032993061,
+        39032995310
+      ],
+      "recomputed_offset_ns": 498.0,
+      "recomputed_delay_ns": 2747.0
+    },
+    {
+      "sync": 158,
+      "delay_sequence": 16531,
+      "offset_ns": 490.5,
+      "delay_ns": 2762.5,
+      "rate_ppb": -67,
+      "t_ns": [
+        39281521744,
+        39281524997,
+        39282904578,
+        39282906850
+      ],
+      "recomputed_offset_ns": 490.5,
+      "recomputed_delay_ns": 2762.5
+    },
+    {
+      "sync": 159,
+      "delay_sequence": 16532,
+      "offset_ns": 453.5,
+      "delay_ns": 2755.5,
+      "rate_ppb": -69,
+      "t_ns": [
+        39531713898,
+        39531717107,
+        39533249518,
+        39533251820
+      ],
+      "recomputed_offset_ns": 453.5,
+      "recomputed_delay_ns": 2755.5
+    },
+    {
+      "sync": 160,
+      "delay_sequence": 16533,
+      "offset_ns": 442.0,
+      "delay_ns": 2755.0,
+      "rate_ppb": -56,
+      "t_ns": [
+        39781975760,
+        39781978957,
+        39783407117,
+        39783409430
+      ],
+      "recomputed_offset_ns": 442.0,
+      "recomputed_delay_ns": 2755.0
+    },
+    {
+      "sync": 161,
+      "delay_sequence": 16534,
+      "offset_ns": 426.5,
+      "delay_ns": 2754.5,
+      "rate_ppb": -56,
+      "t_ns": [
+        40032170986,
+        40032174167,
+        40033748432,
+        40033750760
+      ],
+      "recomputed_offset_ns": 426.5,
+      "recomputed_delay_ns": 2754.5
+    },
+    {
+      "sync": 162,
+      "delay_sequence": 16535,
+      "offset_ns": 420.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -54,
+      "t_ns": [
+        40282265501,
+        40282268667,
+        40283851334,
+        40283853660
+      ],
+      "recomputed_offset_ns": 420.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 163,
+      "delay_sequence": 16536,
+      "offset_ns": 409.5,
+      "delay_ns": 2769.5,
+      "rate_ppb": -56,
+      "t_ns": [
+        40532314218,
+        40532317397,
+        40533887640,
+        40533890000
+      ],
+      "recomputed_offset_ns": 409.5,
+      "recomputed_delay_ns": 2769.5
+    },
+    {
+      "sync": 164,
+      "delay_sequence": 16537,
+      "offset_ns": 387.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -55,
+      "t_ns": [
+        40782512003,
+        40782515137,
+        40783903860,
+        40783906220
+      ],
+      "recomputed_offset_ns": 387.0,
+      "recomputed_delay_ns": 2747.0
+    },
+    {
+      "sync": 165,
+      "delay_sequence": 16538,
+      "offset_ns": 388.5,
+      "delay_ns": 2764.5,
+      "rate_ppb": -49,
+      "t_ns": [
+        41032532304,
+        41032535457,
+        41034001284,
+        41034003660
+      ],
+      "recomputed_offset_ns": 388.5,
+      "recomputed_delay_ns": 2764.5
+    },
+    {
+      "sync": 166,
+      "delay_sequence": 16539,
+      "offset_ns": 364.5,
+      "delay_ns": 2743.5,
+      "rate_ppb": -55,
+      "t_ns": [
+        41282564099,
+        41282567207,
+        41283963811,
+        41283966190
+      ],
+      "recomputed_offset_ns": 364.5,
+      "recomputed_delay_ns": 2743.5
+    },
+    {
+      "sync": 167,
+      "delay_sequence": 16540,
+      "offset_ns": 347.5,
+      "delay_ns": 2753.5,
+      "rate_ppb": -47,
+      "t_ns": [
+        41532877136,
+        41532880237,
+        41534284544,
+        41534286950
+      ],
+      "recomputed_offset_ns": 347.5,
+      "recomputed_delay_ns": 2753.5
+    },
+    {
+      "sync": 168,
+      "delay_sequence": 16541,
+      "offset_ns": 353.0,
+      "delay_ns": 2769.0,
+      "rate_ppb": -43,
+      "t_ns": [
+        41783162115,
+        41783165237,
+        41784568694,
+        41784571110
+      ],
+      "recomputed_offset_ns": 353.0,
+      "recomputed_delay_ns": 2769.0
+    },
+    {
+      "sync": 169,
+      "delay_sequence": 16542,
+      "offset_ns": 336.0,
+      "delay_ns": 2764.0,
+      "rate_ppb": -50,
+      "t_ns": [
+        42033503927,
+        42033507027,
+        42034876242,
+        42034878670
+      ],
+      "recomputed_offset_ns": 336.0,
+      "recomputed_delay_ns": 2764.0
+    },
+    {
+      "sync": 170,
+      "delay_sequence": 16543,
+      "offset_ns": 316.0,
+      "delay_ns": 2751.0,
+      "rate_ppb": -46,
+      "t_ns": [
+        42283776490,
+        42283779557,
+        42285201275,
+        42285203710
+      ],
+      "recomputed_offset_ns": 316.0,
+      "recomputed_delay_ns": 2751.0
+    },
+    {
+      "sync": 171,
+      "delay_sequence": 16544,
+      "offset_ns": 309.5,
+      "delay_ns": 2747.5,
+      "rate_ppb": -40,
+      "t_ns": [
+        42534047210,
+        42534050267,
+        42535431332,
+        42535433770
+      ],
+      "recomputed_offset_ns": 309.5,
+      "recomputed_delay_ns": 2747.5
+    },
+    {
+      "sync": 172,
+      "delay_sequence": 16545,
+      "offset_ns": 298.0,
+      "delay_ns": 2750.0,
+      "rate_ppb": -41,
+      "t_ns": [
+        42784273079,
+        42784276127,
+        42785788698,
+        42785791150
+      ],
+      "recomputed_offset_ns": 298.0,
+      "recomputed_delay_ns": 2750.0
+    },
+    {
+      "sync": 173,
+      "delay_sequence": 16546,
+      "offset_ns": 289.0,
+      "delay_ns": 2749.0,
+      "rate_ppb": -39,
+      "t_ns": [
+        43034562999,
+        43034566037,
+        43036089540,
+        43036092000
+      ],
+      "recomputed_offset_ns": 289.0,
+      "recomputed_delay_ns": 2749.0
+    },
+    {
+      "sync": 174,
+      "delay_sequence": 16547,
+      "offset_ns": 277.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -38,
+      "t_ns": [
+        43284642973,
+        43284645997,
+        43286076090,
+        43286078560
+      ],
+      "recomputed_offset_ns": 277.0,
+      "recomputed_delay_ns": 2747.0
+    },
+    {
+      "sync": 175,
+      "delay_sequence": 16548,
+      "offset_ns": 271.0,
+      "delay_ns": 2751.0,
+      "rate_ppb": -35,
+      "t_ns": [
+        43534810755,
+        43534813777,
+        43536187900,
+        43536190380
+      ],
+      "recomputed_offset_ns": 271.0,
+      "recomputed_delay_ns": 2751.0
+    },
+    {
+      "sync": 176,
+      "delay_sequence": 16549,
+      "offset_ns": 259.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -35,
+      "t_ns": [
+        43785122922,
+        43785125927,
+        43786707033,
+        43786709520
+      ],
+      "recomputed_offset_ns": 259.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 177,
+      "delay_sequence": 16550,
+      "offset_ns": 252.0,
+      "delay_ns": 2750.0,
+      "rate_ppb": -33,
+      "t_ns": [
+        44035164675,
+        44035167677,
+        44036620392,
+        44036622890
+      ],
+      "recomputed_offset_ns": 252.0,
+      "recomputed_delay_ns": 2750.0
+    },
+    {
+      "sync": 178,
+      "delay_sequence": 16551,
+      "offset_ns": 244.0,
+      "delay_ns": 2748.0,
+      "rate_ppb": -32,
+      "t_ns": [
+        44285523255,
+        44285526247,
+        44287097566,
+        44287100070
+      ],
+      "recomputed_offset_ns": 244.0,
+      "recomputed_delay_ns": 2748.0
+    },
+    {
+      "sync": 179,
+      "delay_sequence": 16552,
+      "offset_ns": 232.5,
+      "delay_ns": 2754.5,
+      "rate_ppb": -31,
+      "t_ns": [
+        44535879120,
+        44535882107,
+        44537370898,
+        44537373420
+      ],
+      "recomputed_offset_ns": 232.5,
+      "recomputed_delay_ns": 2754.5
+    },
+    {
+      "sync": 180,
+      "delay_sequence": 16553,
+      "offset_ns": 220.5,
+      "delay_ns": 2753.5,
+      "rate_ppb": -29,
+      "t_ns": [
+        44786065053,
+        44786068027,
+        44787549217,
+        44787551750
+      ],
+      "recomputed_offset_ns": 220.5,
+      "recomputed_delay_ns": 2753.5
+    },
+    {
+      "sync": 181,
+      "delay_sequence": 16554,
+      "offset_ns": 232.0,
+      "delay_ns": 2769.0,
+      "rate_ppb": -25,
+      "t_ns": [
+        45036260176,
+        45036263177,
+        45037630743,
+        45037633280
+      ],
+      "recomputed_offset_ns": 232.0,
+      "recomputed_delay_ns": 2769.0
+    },
+    {
+      "sync": 182,
+      "delay_sequence": 16555,
+      "offset_ns": 212.0,
+      "delay_ns": 2752.0,
+      "rate_ppb": -34,
+      "t_ns": [
+        45286527543,
+        45286530507,
+        45287901940,
+        45287904480
+      ],
+      "recomputed_offset_ns": 212.0,
+      "recomputed_delay_ns": 2752.0
+    },
+    {
+      "sync": 183,
+      "delay_sequence": 16556,
+      "offset_ns": 209.5,
+      "delay_ns": 2751.5,
+      "rate_ppb": -27,
+      "t_ns": [
+        45536908266,
+        45536911227,
+        45538335808,
+        45538338350
+      ],
+      "recomputed_offset_ns": 209.5,
+      "recomputed_delay_ns": 2751.5
+    },
+    {
+      "sync": 184,
+      "delay_sequence": 16557,
+      "offset_ns": 205.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -28,
+      "t_ns": [
+        45787041386,
+        45787044337,
+        45788446109,
+        45788448650
+      ],
+      "recomputed_offset_ns": 205.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 185,
+      "delay_sequence": 16558,
+      "offset_ns": 187.0,
+      "delay_ns": 2759.0,
+      "rate_ppb": -28,
+      "t_ns": [
+        46037121411,
+        46037124357,
+        46038691398,
+        46038693970
+      ],
+      "recomputed_offset_ns": 187.0,
+      "recomputed_delay_ns": 2759.0
+    },
+    {
+      "sync": 186,
+      "delay_sequence": 16559,
+      "offset_ns": 199.0,
+      "delay_ns": 2768.0,
+      "rate_ppb": -22,
+      "t_ns": [
+        46287490410,
+        46287493377,
+        46288979321,
+        46288981890
+      ],
+      "recomputed_offset_ns": 199.0,
+      "recomputed_delay_ns": 2768.0
+    },
+    {
+      "sync": 187,
+      "delay_sequence": 16560,
+      "offset_ns": 182.5,
+      "delay_ns": 2752.5,
+      "rate_ppb": -30,
+      "t_ns": [
+        46537771882,
+        46537774817,
+        46539296930,
+        46539299500
+      ],
+      "recomputed_offset_ns": 182.5,
+      "recomputed_delay_ns": 2752.5
+    },
+    {
+      "sync": 188,
+      "delay_sequence": 16561,
+      "offset_ns": 173.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -24,
+      "t_ns": [
+        46788155933,
+        46788158857,
+        46789591653,
+        46789594230
+      ],
+      "recomputed_offset_ns": 173.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 189,
+      "delay_sequence": 16562,
+      "offset_ns": 173.0,
+      "delay_ns": 2766.0,
+      "rate_ppb": -22,
+      "t_ns": [
+        47038426218,
+        47038429157,
+        47039896037,
+        47039898630
+      ],
+      "recomputed_offset_ns": 173.0,
+      "recomputed_delay_ns": 2766.0
+    },
+    {
+      "sync": 190,
+      "delay_sequence": 16563,
+      "offset_ns": 175.0,
+      "delay_ns": 2767.0,
+      "rate_ppb": -24,
+      "t_ns": [
+        47288803715,
+        47288806657,
+        47290208168,
+        47290210760
+      ],
+      "recomputed_offset_ns": 175.0,
+      "recomputed_delay_ns": 2767.0
+    },
+    {
+      "sync": 191,
+      "delay_sequence": 16564,
+      "offset_ns": 156.5,
+      "delay_ns": 2746.5,
+      "rate_ppb": -27,
+      "t_ns": [
+        47538928874,
+        47538931777,
+        47540503490,
+        47540506080
+      ],
+      "recomputed_offset_ns": 156.5,
+      "recomputed_delay_ns": 2746.5
+    },
+    {
+      "sync": 192,
+      "delay_sequence": 16565,
+      "offset_ns": 153.5,
+      "delay_ns": 2752.5,
+      "rate_ppb": -20,
+      "t_ns": [
+        47788996381,
+        47788999287,
+        47790545361,
+        47790547960
+      ],
+      "recomputed_offset_ns": 153.5,
+      "recomputed_delay_ns": 2752.5
+    },
+    {
+      "sync": 193,
+      "delay_sequence": 16566,
+      "offset_ns": 145.5,
+      "delay_ns": 2747.5,
+      "rate_ppb": -20,
+      "t_ns": [
+        48039355114,
+        48039358007,
+        48040842398,
+        48040845000
+      ],
+      "recomputed_offset_ns": 145.5,
+      "recomputed_delay_ns": 2747.5
+    },
+    {
+      "sync": 194,
+      "delay_sequence": 16567,
+      "offset_ns": 150.0,
+      "delay_ns": 2767.0,
+      "rate_ppb": -18,
+      "t_ns": [
+        48289545680,
+        48289548597,
+        48291024583,
+        48291027200
+      ],
+      "recomputed_offset_ns": 150.0,
+      "recomputed_delay_ns": 2767.0
+    },
+    {
+      "sync": 195,
+      "delay_sequence": 16568,
+      "offset_ns": 130.0,
+      "delay_ns": 2752.0,
+      "rate_ppb": -22,
+      "t_ns": [
+        48539571255,
+        48539574137,
+        48541149358,
+        48541151980
+      ],
+      "recomputed_offset_ns": 130.0,
+      "recomputed_delay_ns": 2752.0
+    },
+    {
+      "sync": 196,
+      "delay_sequence": 16569,
+      "offset_ns": 125.0,
+      "delay_ns": 2761.0,
+      "rate_ppb": -14,
+      "t_ns": [
+        48789737271,
+        48789740157,
+        48791243684,
+        48791246320
+      ],
+      "recomputed_offset_ns": 125.0,
+      "recomputed_delay_ns": 2761.0
+    },
+    {
+      "sync": 197,
+      "delay_sequence": 16570,
+      "offset_ns": 127.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -13,
+      "t_ns": [
+        49039940714,
+        49039943587,
+        49041321021,
+        49041323640
+      ],
+      "recomputed_offset_ns": 127.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 198,
+      "delay_sequence": 16571,
+      "offset_ns": 133.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -15,
+      "t_ns": [
+        49289995037,
+        49289997917,
+        49291361546,
+        49291364160
+      ],
+      "recomputed_offset_ns": 133.0,
+      "recomputed_delay_ns": 2747.0
+    },
+    {
+      "sync": 199,
+      "delay_sequence": 16572,
+      "offset_ns": 122.0,
+      "delay_ns": 2752.0,
+      "rate_ppb": -20,
+      "t_ns": [
+        49540132663,
+        49540135537,
+        49541497190,
+        49541499820
+      ],
+      "recomputed_offset_ns": 122.0,
+      "recomputed_delay_ns": 2752.0
+    },
+    {
+      "sync": 200,
+      "delay_sequence": 16573,
+      "offset_ns": 130.5,
+      "delay_ns": 2763.5,
+      "rate_ppb": -16,
+      "t_ns": [
+        49790408323,
+        49790411217,
+        49791773747,
+        49791776380
+      ],
+      "recomputed_offset_ns": 130.5,
+      "recomputed_delay_ns": 2763.5
+    },
+    {
+      "sync": 201,
+      "delay_sequence": 16574,
+      "offset_ns": 122.0,
+      "delay_ns": 2770.0,
+      "rate_ppb": -22,
+      "t_ns": [
+        50040560285,
+        50040563177,
+        50042111862,
+        50042114510
+      ],
+      "recomputed_offset_ns": 122.0,
+      "recomputed_delay_ns": 2770.0
+    },
+    {
+      "sync": 202,
+      "delay_sequence": 16575,
+      "offset_ns": 121.0,
+      "delay_ns": 2765.0,
+      "rate_ppb": -19,
+      "t_ns": [
+        50290657411,
+        50290660297,
+        50292015376,
+        50292018020
+      ],
+      "recomputed_offset_ns": 121.0,
+      "recomputed_delay_ns": 2765.0
+    },
+    {
+      "sync": 203,
+      "delay_sequence": 16576,
+      "offset_ns": 109.0,
+      "delay_ns": 2771.0,
+      "rate_ppb": -20,
+      "t_ns": [
+        50540787587,
+        50540790467,
+        50542261638,
+        50542264300
+      ],
+      "recomputed_offset_ns": 109.0,
+      "recomputed_delay_ns": 2771.0
+    },
+    {
+      "sync": 204,
+      "delay_sequence": 16577,
+      "offset_ns": 109.5,
+      "delay_ns": 2762.5,
+      "rate_ppb": -16,
+      "t_ns": [
+        50790809655,
+        50790812527,
+        50792179897,
+        50792182550
+      ],
+      "recomputed_offset_ns": 109.5,
+      "recomputed_delay_ns": 2762.5
+    },
+    {
+      "sync": 205,
+      "delay_sequence": 16578,
+      "offset_ns": 100.0,
+      "delay_ns": 2769.0,
+      "rate_ppb": -17,
+      "t_ns": [
+        51041006698,
+        51041009567,
+        51042571951,
+        51042574620
+      ],
+      "recomputed_offset_ns": 100.0,
+      "recomputed_delay_ns": 2769.0
+    },
+    {
+      "sync": 206,
+      "delay_sequence": 16579,
+      "offset_ns": 101.5,
+      "delay_ns": 2765.5,
+      "rate_ppb": -14,
+      "t_ns": [
+        51291363280,
+        51291366147,
+        51292850376,
+        51292853040
+      ],
+      "recomputed_offset_ns": 101.5,
+      "recomputed_delay_ns": 2765.5
+    },
+    {
+      "sync": 207,
+      "delay_sequence": 16580,
+      "offset_ns": 94.0,
+      "delay_ns": 2764.0,
+      "rate_ppb": -16,
+      "t_ns": [
+        51541601309,
+        51541604167,
+        51543085180,
+        51543087850
+      ],
+      "recomputed_offset_ns": 94.0,
+      "recomputed_delay_ns": 2764.0
+    },
+    {
+      "sync": 208,
+      "delay_sequence": 16581,
+      "offset_ns": 89.5,
+      "delay_ns": 2763.5,
+      "rate_ppb": -13,
+      "t_ns": [
+        51791803344,
+        51791806197,
+        51793248216,
+        51793250890
+      ],
+      "recomputed_offset_ns": 89.5,
+      "recomputed_delay_ns": 2763.5
+    },
+    {
+      "sync": 209,
+      "delay_sequence": 16582,
+      "offset_ns": 87.0,
+      "delay_ns": 2771.0,
+      "rate_ppb": -12,
+      "t_ns": [
+        52042116099,
+        52042118957,
+        52043532786,
+        52043535470
+      ],
+      "recomputed_offset_ns": 87.0,
+      "recomputed_delay_ns": 2771.0
+    },
+    {
+      "sync": 210,
+      "delay_sequence": 16583,
+      "offset_ns": 87.0,
+      "delay_ns": 2765.0,
+      "rate_ppb": -12,
+      "t_ns": [
+        52292425245,
+        52292428097,
+        52293923262,
+        52293925940
+      ],
+      "recomputed_offset_ns": 87.0,
+      "recomputed_delay_ns": 2765.0
+    },
+    {
+      "sync": 211,
+      "delay_sequence": 16584,
+      "offset_ns": 78.5,
+      "delay_ns": 2769.5,
+      "rate_ppb": -13,
+      "t_ns": [
+        52542612919,
+        52542615767,
+        52544007169,
+        52544009860
+      ],
+      "recomputed_offset_ns": 78.5,
+      "recomputed_delay_ns": 2769.5
+    },
+    {
+      "sync": 212,
+      "delay_sequence": 16585,
+      "offset_ns": 66.0,
+      "delay_ns": 2759.0,
+      "rate_ppb": -10,
+      "t_ns": [
+        52792944592,
+        52792947417,
+        52794409857,
+        52794412550
+      ],
+      "recomputed_offset_ns": 66.0,
+      "recomputed_delay_ns": 2759.0
+    },
+    {
+      "sync": 213,
+      "delay_sequence": 16586,
+      "offset_ns": 64.0,
+      "delay_ns": 2760.0,
+      "rate_ppb": -4,
+      "t_ns": [
+        53043072643,
+        53043075467,
+        53044496974,
+        53044499670
+      ],
+      "recomputed_offset_ns": 64.0,
+      "recomputed_delay_ns": 2760.0
+    },
+    {
+      "sync": 214,
+      "delay_sequence": 16587,
+      "offset_ns": 59.5,
+      "delay_ns": 2757.5,
+      "rate_ppb": -4,
+      "t_ns": [
+        53293412330,
+        53293415147,
+        53294881512,
+        53294884210
+      ],
+      "recomputed_offset_ns": 59.5,
+      "recomputed_delay_ns": 2757.5
+    },
+    {
+      "sync": 215,
+      "delay_sequence": 16588,
+      "offset_ns": 68.5,
+      "delay_ns": 2746.5,
+      "rate_ppb": -3,
+      "t_ns": [
+        53543777872,
+        53543780687,
+        53545361512,
+        53545364190
+      ],
+      "recomputed_offset_ns": 68.5,
+      "recomputed_delay_ns": 2746.5
+    },
+    {
+      "sync": 216,
+      "delay_sequence": 16589,
+      "offset_ns": 75.5,
+      "delay_ns": 2746.5,
+      "rate_ppb": -8,
+      "t_ns": [
+        53793980035,
+        53793982857,
+        53795445249,
+        53795447920
+      ],
+      "recomputed_offset_ns": 75.5,
+      "recomputed_delay_ns": 2746.5
+    },
+    {
+      "sync": 217,
+      "delay_sequence": 16590,
+      "offset_ns": 63.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -12,
+      "t_ns": [
+        54044275408,
+        54044278217,
+        54045789047,
+        54045791730
+      ],
+      "recomputed_offset_ns": 63.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 218,
+      "delay_sequence": 16591,
+      "offset_ns": 62.0,
+      "delay_ns": 2749.0,
+      "rate_ppb": -7,
+      "t_ns": [
+        54294565866,
+        54294568677,
+        54296100983,
+        54296103670
+      ],
+      "recomputed_offset_ns": 62.0,
+      "recomputed_delay_ns": 2749.0
+    },
+    {
+      "sync": 219,
+      "delay_sequence": 16592,
+      "offset_ns": 57.5,
+      "delay_ns": 2751.5,
+      "rate_ppb": -7,
+      "t_ns": [
+        54544780778,
+        54544783587,
+        54546262596,
+        54546265290
+      ],
+      "recomputed_offset_ns": 57.5,
+      "recomputed_delay_ns": 2751.5
+    },
+    {
+      "sync": 220,
+      "delay_sequence": 16593,
+      "offset_ns": 60.0,
+      "delay_ns": 2748.0,
+      "rate_ppb": -6,
+      "t_ns": [
+        54795090179,
+        54795092987,
+        54796554052,
+        54796556740
+      ],
+      "recomputed_offset_ns": 60.0,
+      "recomputed_delay_ns": 2748.0
+    },
+    {
+      "sync": 221,
+      "delay_sequence": 16594,
+      "offset_ns": 60.0,
+      "delay_ns": 2746.0,
+      "rate_ppb": -8,
+      "t_ns": [
+        55045215491,
+        55045218297,
+        55046642474,
+        55046645160
+      ],
+      "recomputed_offset_ns": 60.0,
+      "recomputed_delay_ns": 2746.0
+    },
+    {
+      "sync": 222,
+      "delay_sequence": 16595,
+      "offset_ns": 61.5,
+      "delay_ns": 2744.5,
+      "rate_ppb": -8,
+      "t_ns": [
+        55295431811,
+        55295434617,
+        55296887927,
+        55296890610
+      ],
+      "recomputed_offset_ns": 61.5,
+      "recomputed_delay_ns": 2744.5
+    },
+    {
+      "sync": 223,
+      "delay_sequence": 16596,
+      "offset_ns": 52.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -10,
+      "t_ns": [
+        55545539664,
+        55545542467,
+        55547051092,
+        55547053790
+      ],
+      "recomputed_offset_ns": 52.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 224,
+      "delay_sequence": 16597,
+      "offset_ns": 54.5,
+      "delay_ns": 2747.5,
+      "rate_ppb": -6,
+      "t_ns": [
+        55795916855,
+        55795919657,
+        55797373677,
+        55797376370
+      ],
+      "recomputed_offset_ns": 54.5,
+      "recomputed_delay_ns": 2747.5
+    },
+    {
+      "sync": 225,
+      "delay_sequence": 16598,
+      "offset_ns": 49.0,
+      "delay_ns": 2745.0,
+      "rate_ppb": -8,
+      "t_ns": [
+        56046016183,
+        56046018977,
+        56047440724,
+        56047443420
+      ],
+      "recomputed_offset_ns": 49.0,
+      "recomputed_delay_ns": 2745.0
+    },
+    {
+      "sync": 226,
+      "delay_sequence": 16599,
+      "offset_ns": 39.5,
+      "delay_ns": 2760.5,
+      "rate_ppb": -6,
+      "t_ns": [
+        56296217757,
+        56296220557,
+        56297626989,
+        56297629710
+      ],
+      "recomputed_offset_ns": 39.5,
+      "recomputed_delay_ns": 2760.5
+    },
+    {
+      "sync": 227,
+      "delay_sequence": 16600,
+      "offset_ns": 40.0,
+      "delay_ns": 2754.0,
+      "rate_ppb": -1,
+      "t_ns": [
+        56546527363,
+        56546530157,
+        56548068666,
+        56548071380
+      ],
+      "recomputed_offset_ns": 40.0,
+      "recomputed_delay_ns": 2754.0
+    },
+    {
+      "sync": 228,
+      "delay_sequence": 16601,
+      "offset_ns": 39.5,
+      "delay_ns": 2755.5,
+      "rate_ppb": -2,
+      "t_ns": [
+        56796638032,
+        56796640827,
+        56798213844,
+        56798216560
+      ],
+      "recomputed_offset_ns": 39.5,
+      "recomputed_delay_ns": 2755.5
+    },
+    {
+      "sync": 229,
+      "delay_sequence": 16602,
+      "offset_ns": 37.5,
+      "delay_ns": 2758.5,
+      "rate_ppb": -2,
+      "t_ns": [
+        57046657591,
+        57046660387,
+        57048144109,
+        57048146830
+      ],
+      "recomputed_offset_ns": 37.5,
+      "recomputed_delay_ns": 2758.5
+    },
+    {
+      "sync": 230,
+      "delay_sequence": 16603,
+      "offset_ns": 36.5,
+      "delay_ns": 2755.5,
+      "rate_ppb": -2,
+      "t_ns": [
+        57296662455,
+        57296665247,
+        57298200301,
+        57298203020
+      ],
+      "recomputed_offset_ns": 36.5,
+      "recomputed_delay_ns": 2755.5
+    },
+    {
+      "sync": 231,
+      "delay_sequence": 16604,
+      "offset_ns": 51.0,
+      "delay_ns": 2748.0,
+      "rate_ppb": -2,
+      "t_ns": [
+        57547051088,
+        57547053887,
+        57548545773,
+        57548548470
+      ],
+      "recomputed_offset_ns": 51.0,
+      "recomputed_delay_ns": 2748.0
+    },
+    {
+      "sync": 232,
+      "delay_sequence": 16605,
+      "offset_ns": 42.0,
+      "delay_ns": 2748.0,
+      "rate_ppb": -10,
+      "t_ns": [
+        57797196317,
+        57797199107,
+        57798596784,
+        57798599490
+      ],
+      "recomputed_offset_ns": 42.0,
+      "recomputed_delay_ns": 2748.0
+    },
+    {
+      "sync": 233,
+      "delay_sequence": 16606,
+      "offset_ns": 49.0,
+      "delay_ns": 2769.0,
+      "rate_ppb": -6,
+      "t_ns": [
+        58047464349,
+        58047467167,
+        58048986570,
+        58048989290
+      ],
+      "recomputed_offset_ns": 49.0,
+      "recomputed_delay_ns": 2769.0
+    },
+    {
+      "sync": 234,
+      "delay_sequence": 16607,
+      "offset_ns": 44.0,
+      "delay_ns": 2742.0,
+      "rate_ppb": -10,
+      "t_ns": [
+        58297835831,
+        58297838617,
+        58299277872,
+        58299280570
+      ],
+      "recomputed_offset_ns": 44.0,
+      "recomputed_delay_ns": 2742.0
+    },
+    {
+      "sync": 235,
+      "delay_sequence": 16608,
+      "offset_ns": 39.5,
+      "delay_ns": 2751.5,
+      "rate_ppb": -8,
+      "t_ns": [
+        58547975146,
+        58547977937,
+        58549364938,
+        58549367650
+      ],
+      "recomputed_offset_ns": 39.5,
+      "recomputed_delay_ns": 2751.5
+    },
+    {
+      "sync": 236,
+      "delay_sequence": 16609,
+      "offset_ns": 52.0,
+      "delay_ns": 2764.0,
+      "rate_ppb": -6,
+      "t_ns": [
+        58798141981,
+        58798144797,
+        58799497878,
+        58799500590
+      ],
+      "recomputed_offset_ns": 52.0,
+      "recomputed_delay_ns": 2764.0
+    },
+    {
+      "sync": 237,
+      "delay_sequence": 16610,
+      "offset_ns": 27.5,
+      "delay_ns": 2749.5,
+      "rate_ppb": -13,
+      "t_ns": [
+        59048440400,
+        59048443177,
+        59049811468,
+        59049814190
+      ],
+      "recomputed_offset_ns": 27.5,
+      "recomputed_delay_ns": 2749.5
+    },
+    {
+      "sync": 238,
+      "delay_sequence": 16611,
+      "offset_ns": 28.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -1,
+      "t_ns": [
+        59298630608,
+        59298633387,
+        59300109708,
+        59300112430
+      ],
+      "recomputed_offset_ns": 28.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 239,
+      "delay_sequence": 16612,
+      "offset_ns": 29.5,
+      "delay_ns": 2747.5,
+      "rate_ppb": -2,
+      "t_ns": [
+        59548801770,
+        59548804547,
+        59550234662,
+        59550237380
+      ],
+      "recomputed_offset_ns": 29.5,
+      "recomputed_delay_ns": 2747.5
+    },
+    {
+      "sync": 240,
+      "delay_sequence": 16613,
+      "offset_ns": 31.5,
+      "delay_ns": 2750.5,
+      "rate_ppb": -3,
+      "t_ns": [
+        59799073975,
+        59799076757,
+        59800482291,
+        59800485010
+      ],
+      "recomputed_offset_ns": 31.5,
+      "recomputed_delay_ns": 2750.5
+    },
+    {
+      "sync": 241,
+      "delay_sequence": 16614,
+      "offset_ns": 34.5,
+      "delay_ns": 2751.5,
+      "rate_ppb": -4,
+      "t_ns": [
+        60049428151,
+        60049430937,
+        60050901593,
+        60050904310
+      ],
+      "recomputed_offset_ns": 34.5,
+      "recomputed_delay_ns": 2751.5
+    },
+    {
+      "sync": 242,
+      "delay_sequence": 16615,
+      "offset_ns": 23.0,
+      "delay_ns": 2755.0,
+      "rate_ppb": -6,
+      "t_ns": [
+        60299623299,
+        60299626077,
+        60300984128,
+        60300986860
+      ],
+      "recomputed_offset_ns": 23.0,
+      "recomputed_delay_ns": 2755.0
+    },
+    {
+      "sync": 243,
+      "delay_sequence": 16616,
+      "offset_ns": 41.0,
+      "delay_ns": 2765.0,
+      "rate_ppb": -1,
+      "t_ns": [
+        60549848451,
+        60549851257,
+        60551230476,
+        60551233200
+      ],
+      "recomputed_offset_ns": 41.0,
+      "recomputed_delay_ns": 2765.0
+    },
+    {
+      "sync": 244,
+      "delay_sequence": 16617,
+      "offset_ns": 31.0,
+      "delay_ns": 2750.0,
+      "rate_ppb": -10,
+      "t_ns": [
+        60799968336,
+        60799971117,
+        60801467891,
+        60801470610
+      ],
+      "recomputed_offset_ns": 31.0,
+      "recomputed_delay_ns": 2750.0
+    },
+    {
+      "sync": 245,
+      "delay_sequence": 16618,
+      "offset_ns": 19.0,
+      "delay_ns": 2759.0,
+      "rate_ppb": -6,
+      "t_ns": [
+        61050279479,
+        61050282257,
+        61051655820,
+        61051658560
+      ],
+      "recomputed_offset_ns": 19.0,
+      "recomputed_delay_ns": 2759.0
+    },
+    {
+      "sync": 246,
+      "delay_sequence": 16619,
+      "offset_ns": 40.5,
+      "delay_ns": 2765.5,
+      "rate_ppb": 0,
+      "t_ns": [
+        61300598301,
+        61300601107,
+        61302062835,
+        61302065560
+      ],
+      "recomputed_offset_ns": 40.5,
+      "recomputed_delay_ns": 2765.5
+    },
+    {
+      "sync": 247,
+      "delay_sequence": 16620,
+      "offset_ns": 22.0,
+      "delay_ns": 2747.0,
+      "rate_ppb": -11,
+      "t_ns": [
+        61550615658,
+        61550618427,
+        61552067945,
+        61552070670
+      ],
+      "recomputed_offset_ns": 22.0,
+      "recomputed_delay_ns": 2747.0
+    }
+  ]
+}

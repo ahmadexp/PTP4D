@@ -34,6 +34,7 @@ def main():
                         'tests/test_session.c', '-lm', '-o', output], cwd=ROOT, check=True)
         cases = [(0, servo, 1) for servo in range(6)] + [(0, 0, 2)]
         cases += [(fault, 2, 2 if fault == 4 else 1) for fault in range(1, 21)]
+        cases += [(fault, servo, 1) for fault in (21, 22) for servo in range(1, 6)]
         for case in cases:
             subprocess.run([output, *map(str, case)], cwd=ROOT, check=True)
     subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'tests', '-v'],

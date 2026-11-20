@@ -132,7 +132,7 @@ For each trial, start the standalone laptop grandmaster above and promptly start
 a 60-second follower run on DOS. Begin with the firmware PI baseline:
 
 ```dos
-PTP4D /PTP 60 /SERVO PI /SYNC NONE
+PTP4D /PTP 60 /SERVO PI /SYNC NONE > C:\PI01.LOG
 ```
 
 After the follower returns to DOS, stop the laptop controller with Ctrl+C and
@@ -142,8 +142,13 @@ for each of `HOST_PI`, `AUTO_PI`, `LINREG`, `KALMAN`, and `PLLFLL`, changing the
 names before the next trial. Compare acquisition, reported offset, path delay,
 frequency corrections, timestamp errors, and clean STOP restoration.
 
+Use a different DOS log filename for each trial. Redirection saves the complete
+report after the utility releases card ownership; the live BIOS display remains
+visible. Read the file after the DOS prompt returns. Streaming the final 128-row
+report through COMrade's console capture can overflow that capture buffer.
+
 These trials use `/SYNC NONE`, which leaves DOS time unchanged. They test the
-DOS-side servos against the laptop-controlled hardware clock. Active Mac-to-DOS
-PTP and the new servos still require physical validation; enumeration, passive
-reception, and virtual CoreMIDI I/O are recorded in the
-[local validation note](validation/coremidi-local.md).
+DOS-side servos against the laptop-controlled hardware clock. All six selections
+completed [one-minute hardware trials](validation/servo-20261120/) after storage
+transfers finished. Enumeration, passive reception, and virtual CoreMIDI I/O are
+recorded in the earlier [local validation note](validation/coremidi-local.md).

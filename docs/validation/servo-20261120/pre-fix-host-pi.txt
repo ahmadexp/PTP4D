@@ -1,0 +1,18 @@
+PTP4D 0.5-dev - PTP for DOS
+PicoPCMCIA window CC00, firmware v0.22, protocol 2
+Mode FOLLOWER; domain 42, 4 Hz; servo HOST_PI; direction hardware clock only. ESC stops.
+Port 1: 0B95:1790 rev 0500 AX88279A candidate
+  Product: AX88279A
+USB MIDI: IN 84, OUT 05, 64-byte packets
+Host ACK: transport -5, result 4, phase 2, profile 3, error 0, generation 5
+Host request 10000 ppb; ACK ppb 0, addend 80000000, delay 19984328 ns, caps 95, armed 1, restored 0
+Timing operation failed: invalid request or response (-5).
+PTP exchanges: 3, lease renewals: 0, stopped: verified
+Last ACK: result 0, phase 9, profile 3, error 0, armed 0, restored 1
+Host frequency adjustment was not acknowledged; stopping without fallback.
+PTP_CSV,sync,delay_seq,offset_ns,path_delay_ns,rate_ppb,t1,t2,t3,t4
+PTP_CSV,11,16384,-138431.000000,2771.000000,0,2.501934416,2.501798756,2.503293448,2.503434650
+PTP_CSV,12,16385,-138444.500000,2766.500000,0,2.752032464,2.751896786,2.753387989,2.753529200
+PTP_CSV,13,16386,-138449.000000,2764.000000,0,3.002272541,3.002136856,3.003548757,3.003689970
+DOS/BIOS and battery RTC unchanged by PTP4D.
+Host-servo commands acknowledged: 1

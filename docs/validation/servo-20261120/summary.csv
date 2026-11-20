@@ -1,0 +1,7 @@
+servo,exchanges,host_commands,last_window_mean_offset_ns,last_window_max_abs_offset_ns,last_window_stddev_offset_ns,last_path_delay_ns,grandmaster_timestamp_errors,t1_matches,t4_matches,arithmetic_matches,dos_stop_verified,gm_stopped
+PI,238,0,2.0875,12.5,4.843665321840476,2760.5,0,128,128,128,True,True
+HOST_PI,237,236,49.85,89.5,18.183852727076296,2747.0,0,128,128,128,True,True
+AUTO_PI,238,237,4.625,22.5,6.963072238602727,2761.5,0,128,128,128,True,True
+LINREG,238,237,-0.05,16.0,7.130743299264109,2750.5,0,128,128,128,True,True
+KALMAN,238,237,0.2375,13.5,5.546381139986685,2758.5,0,128,128,128,True,True
+PLLFLL,238,237,-1.4375,17.0,7.1266993587494625,2754.0,0,128,128,128,True,True

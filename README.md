@@ -10,16 +10,18 @@
 
 The development host controller also supports **macOS CoreMIDI** alongside Linux
 ALSA, including device listing and a receive-only check. Mac enumeration, passive
-TimeStick telemetry, and virtual MIDI input/output have been tested. Active PTP
-and the new servo trials remain deferred until SD transfers finish.
+TimeStick telemetry, and virtual MIDI input/output have been tested. All six
+follower servo selections completed one-minute PC110 hardware trials against
+the Mac-controlled TimeStick, with complete timestamp matches and verified STOPs.
+[Hardware comparison and evidence](docs/validation/servo-20261120/).
 [Mac setup and servo trial procedure](docs/setup.md) |
 [CoreMIDI validation](docs/validation/coremidi-local.md).
 
 The first working setup is an IBM PC110 running MS-DOS 6.22. PTP4D configures and monitors the TimeStick's on-device PI servo, while the TimeStick exchanges hardware-timestamped PTP messages over Ethernet. In that original 0.4 configuration, the DOS system clock is unchanged.
 
-![PTP4D running on the IBM PC110's built-in display](docs/photos/pc110-running-ptp4d.png)
+![PTP4D AUTO_PI results on the IBM PC110's built-in display](docs/photos/pc110-auto-pi-servo.jpg)
 
-*PTP4D on the PC110's own display during convergence, showing the measured offset, path delay, and frequency correction.*
+*A one-minute AUTO_PI trial from the development build, photographed on the physical PC110. The display shows reported offset, path delay, and frequency correction. [Full-size photo](docs/photos/pc110-auto-pi-servo.jpg).*
 
 ## Hardware-verified 0.4 behavior
 

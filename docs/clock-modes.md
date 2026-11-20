@@ -3,7 +3,10 @@
 These changes are implemented in the source checkout and local development
 build. The published 0.4 executable and its hardware evidence remain unchanged.
 The new paths have portable simulations, protocol/session fault tests and a
-Borland build; they have not yet been exercised on the physical PC110.
+Borland build. All six follower servos with `/SYNC NONE` also completed
+[one-minute PC110 hardware trials](validation/servo-20261120/) against a
+Mac-controlled TimeStick. PHC2DOS and DOS-controlled GM operation remain
+unverified on the physical PC110.
 
 ## Supported combinations
 
