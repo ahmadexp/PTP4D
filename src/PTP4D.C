@@ -27,8 +27,7 @@ static unsigned char mac[6], command_bytes[96], ack_data[94];
 static unsigned long nonce, sequence, last_sample_seq;
 static int sample_count, clock_started, clock_stopped, ack_result=-1, captured;
 static unsigned ack_phase, ack_profile, ack_restored, ack_armed;
-#define PTP_RECORDS 128u
-static unsigned char ptp_records[PTP_RECORDS][94];
+#include "CAPTURE.H"
 static unsigned ptp_used,ptp_next,ptp_sync,ptp_delay,ptp_mode,ptp_seconds;
 static unsigned long ptp_exchanges,ptp_renewals,ptp_last_tick;
 static int ptp_started,ptp_stopped,ptp_escaped;
@@ -345,8 +344,13 @@ static void collect_ptp(void) {
        ((sync-ptp_sync)&65535u)>=32768u || !((dseq-ptp_delay)&65535u) ||
        ((dseq-ptp_delay)&65535u)>=32768u))return;
     if(ptp_exchanges && ts_elapsed(ptp_last_tick)>27UL)stable_samples=0;
+#ifdef PTP_FULL_CAPTURE
+    if(ptp_used==PTP_RECORDS) {
+        strcpy(runtime_reason,"Full capture buffer exhausted; stopped without overwriting records.");return;
+    }
+#endif
     ptp_sync=sync;ptp_delay=dseq;ptp_last_tick=ts_ticks();ptp_exchanges++;
-    memcpy(ptp_records[ptp_next],midi.raw,94);
+    memcpy(ptp_record(ptp_next),midi.raw,94);
     ptp_next=(ptp_next+1)%PTP_RECORDS;if(ptp_used<PTP_RECORDS)ptp_used++;
     if(offset>=-1000000.0 && offset<=1000000.0) {
         if(stable_samples<8)stable_samples++;
@@ -544,14 +548,17 @@ static void ptp_report(void) {
         puts("Free-running PHC only. No known epoch, UTC traceability, Announce or BMCA.");return;
     }
     if(!ptp_exchanges)puts("No valid PTP exchanges observed.");
+#ifdef PTP_FULL_CAPTURE
+    printf("Full capture: %u records retained, capacity %u, no overwrites.\n",ptp_used,PTP_RECORDS);
+#endif
     puts("PTP_CSV,sync,delay_seq,offset_ns,path_delay_ns,rate_ppb,t1,t2,t3,t4");
     start=ptp_used==PTP_RECORDS?ptp_next:0;
     for(i=0;i<ptp_used;i++) {
         index=(start+i)%PTP_RECORDS;
-        if(!tm_ptp_sample(ptp_records[index],&offset,&delay,&ppb))continue;
-        printf("PTP_CSV,%u,%u,%.6f,%.6f,%ld",ts_le16(ptp_records[index]+26),ts_le16(ptp_records[index]+28),offset,delay,ppb);
+        if(!tm_ptp_sample(ptp_record(index),&offset,&delay,&ppb))continue;
+        printf("PTP_CSV,%u,%u,%.6f,%.6f,%ld",ts_le16(ptp_record(index)+26),ts_le16(ptp_record(index)+28),offset,delay,ppb);
         for(j=0;j<4;j++) {
-            memcpy(raw,ptp_records[index]+36+j*10,4);memcpy(raw+4,ptp_records[index]+30+j*10,6);raw[10]=raw[11]=0;
+            memcpy(raw,ptp_record(index)+36+j*10,4);memcpy(raw+4,ptp_record(index)+30+j*10,6);raw[10]=raw[11]=0;
             if(ts_clock(raw,12,sec,&ns))printf(",%s.%09lu",sec,ns);
         }
         puts("");
@@ -606,7 +613,11 @@ int main(int argc, char **argv) {
     unsigned i;
     int mode = -1, list = 0, diag = 0, enable = 0, wanted = -1, r = 0;
     const char *option_error;
+#ifdef PTP_FULL_CAPTURE
+    puts("PTP4D 0.5 full-capture - PTP for DOS");
+#else
     puts("PTP4D 0.5 - PTP for DOS");
+#endif
     r=pt_options_parse(argc,argv,&options,&option_error);
     if(r==2){pt_help();return 0;}
     if(!r){puts(option_error);return 1;}
@@ -633,6 +644,9 @@ int main(int argc, char **argv) {
     if (mode < 0 && (ts_rd(0x04C6) & 255) != 1) {
         puts("USB port is not in host role. Disconnect the programming computer,");
         puts("connect TimeStick, then run PICOCARD /USB to re-probe the port."); return 2;
+    }
+    if(ptp_mode && !ptp_capture_init()) {
+        puts("Insufficient conventional memory for full capture. No timing session started.");return 2;
     }
     if (!quiet()) { r = 3; goto finish; }
     if (mode >= 0) {
@@ -662,7 +676,7 @@ finish:
     else if (r == 5) puts(matches ? "Multiple AX88279A devices. Select one with /PORT 1..4." :
                                   "No matching AX88279A found (0B95:1790, bcdDevice 0500).");
     if (r == 4) printf("Timing operation failed: %s (%d).\n", result_name(error), error);
-    if(ptp_mode) { ptp_report();return r; }
+    if(ptp_mode) { ptp_report();ptp_capture_free();return r; }
     for (i = 0; i < 2; i++) if (sample_valid[i])
         printf("Clock %u: %s.%09lu seconds\n", i+1, clocks[i], nanos[i]);
     if(heartbeats || diag) printf("MIDI frames: %u, heartbeats: %u, flags: %02X, generation: %lu\n",frames,heartbeats,flags,generation);

@@ -156,9 +156,12 @@ int main(int argc,char **argv) {
     if(fault>=21)options.sync=SYNC_NONE;
     if(options.role==2)options.sync=SYNC_NONE;
     options.valid_seconds=fault==11?10:120;options.track=1;ptp_mode=1;ptp_seconds=75;
+    if(fault==23)ptp_seconds=600;
+    if(fault==24)ptp_seconds=900;
     selected=0;selected_gen=1;system_origin.seconds=1790000000UL;system_origin.nanoseconds=0;
+    assert(ptp_capture_init());
     r=ptp_run();
-    if(fault==0 || fault==10 || fault==11 || fault==21 || fault==22) {
+    if(fault==0 || fault==10 || fault==11 || fault==21 || fault==22 || fault==23) {
         assert(r==TS_OK&&starts==1&&stops==1&&ptp_stopped&&commands>(fault==11?1u:10u));
         if(options.role==1){
             if(fault>=21)assert(bridge_updates==0&&writes==0);
@@ -171,6 +174,16 @@ int main(int argc,char **argv) {
     }else if(fault==1){assert(r!=TS_OK&&starts==0&&stops==0&&writes==0);}
     else {assert(r!=TS_OK&&stops==1);if(fault==12||fault==14)assert(writes==2);else if(fault!=9)assert(writes==0);}
     if(fault==5)assert(!ptp_stopped);else if(stops)assert(ptp_stopped);
+#ifdef PTP_FULL_CAPTURE
+    if(fault==23 || fault==24) {
+        unsigned i;
+        assert(ptp_used>2048 && ptp_used==ptp_exchanges);
+        for(i=0;i<ptp_used;i++)assert(ts_le16(ptp_record(i)+26)==i+1);
+        if(fault==23)assert(ptp_used<PTP_RECORDS && !runtime_reason[0]);
+        else assert(ptp_used==PTP_RECORDS && strstr(runtime_reason,"buffer exhausted"));
+    }
+#endif
     printf("PASS session fault=%d servo=%d role=%d, result=%d, writes=%u, host ACKs=%lu\n",fault,options.servo,options.role,r,writes,host_commands);
+    ptp_capture_free();
     return 0;
 }
